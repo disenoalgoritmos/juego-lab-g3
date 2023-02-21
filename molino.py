@@ -1,3 +1,5 @@
+import random
+
 class Estado:
     def __init__(self):
         self.Free = [True] *24
@@ -9,7 +11,6 @@ class Accion:
         self.origen=origen
         self.destino = destino
         self.kill = kill
-        pass
 class Tablero:
     def __init__(self,estado):
         self.estado = estado
@@ -28,7 +29,7 @@ class Tablero:
                 return False
         else:
             #Etapa de movimiento
-            if self.estado.Free[accion.origen]==False:
+            if self.estado.Free[accion.origen]==True:
                 return False
             if accion.origen not in self.estado.Gamer[self.estado.Turn]:
                 return False
@@ -44,123 +45,181 @@ class Tablero:
                 
 
 
-
+ 
     def validarAccionKill(self,accion:Accion):
         if self.comprobarMolino(accion.destino) == True:
                 if accion.kill == -1:
                     return False
-                if accion.kill not in self.estado.Gamer[(self.estado.Turn+1)%2]:
-                    return False
-                fichasComibles = self.estado.Gamer[(self.estado.Turn+1)%2].copy()
-                if self.comprobarMolino(accion.kill):
-                
-                    fichasComibles.remove(accion.kill)
-                    for ficha in fichasComibles:
-                        if not self.comprobarMolino(ficha):
-                            return False
-                
+
+                fichasComibles = self.FichasComibles()
+                if accion.kill not in fichasComibles:
+                    return False              
         else:
             if accion.kill != -1:
                 return False
         return True
 
     def ejecutarAccion(self,accion:Accion):
-        self.estado.Free[accion.origen] = True
+        if(accion.origen >=0):
+            self.estado.Free[accion.origen] = True
         self.estado.Free[accion.destino] = False
         if(self.estado.chips<=0):
             self.estado.Gamer[self.estado.Turn].remove(accion.origen)
+        else:
+            self.estado.chips -=1
         self.estado.Gamer[self.estado.Turn].append(accion.destino)
         if accion.kill != -1:
             self.estado.Gamer[(self.estado.Turn+1)%2].remove(accion.kill)
-            self.estado.Free[accion.kill] = True
-        if self.estado.chips > 0:
-            self.estado.chips -= 1
-        print (f"Accion: origen={accion.origen}, destino={accion.destino}, kill={accion.kill}, turno={self.estado.Turn}")
+            self.estado.Free[accion.kill] = True 
+        print (f"Accion: origen={accion.origen}, destino={accion.destino}, kill={accion.kill}, turno={self.estado.Turn},fichas sobrantes: {self.estado.chips}")
         #self.Print()
         self.estado.Turn = (self.estado.Turn+1)%2
 
     def comprobarMolino(self,posicion):
         anillo = self.NivelAnillo(posicion)
+        #si la posicion a mirar esta libre entonces se comprueba si se formaria un molino del propio jugador con turno
+        if self.estado.Free[posicion] == True:
+            turno = self.estado.Turn
+        #Si no esta libre entonces se esta intentando comprobar si la ficha en dicha posicion forma un molino con fichas del jugador de la ficha
+        else:
+            if posicion in self.estado.Gamer[0]:
+                turno = 0
+            else:#Suponemos que si no es del jugador 0, debe de serlo del jugador 1 ya que esa posicion no esta libre
+                turno = 1
         if self.EsPasillo(posicion): #Estamos en un pasillo
 
             if(anillo==0):
-                if posicion+8 in self.estado.Gamer[self.estado.Turn] and not self.estado.Free[posicion+8] \
-                and posicion+16 in self.estado.Gamer[self.estado.Turn] and not self.estado.Free[posicion+16]:
+                #Los not free son rendundantes, si esta en Gamer no deberian estar libres
+                if posicion+8 in self.estado.Gamer[turno] and not self.estado.Free[posicion+8] \
+                and posicion+16 in self.estado.Gamer[turno] and not self.estado.Free[posicion+16]:
                     return True
 
             elif anillo==1:
-                if posicion+8 in self.estado.Gamer[self.estado.Turn] and not self.estado.Free[posicion+8] \
-                    and posicion-8 in self.estado.Gamer[self.estado.Turn] and not self.estado.Free[posicion+8]:
+                if posicion+8 in self.estado.Gamer[turno] and not self.estado.Free[posicion+8] \
+                    and posicion-8 in self.estado.Gamer[turno] and not self.estado.Free[posicion-8]:
                     return True
 
             elif anillo==2:
-                if posicion-8 in self.estado.Gamer[self.estado.Turn] and not self.estado.Free[posicion-16] \
-                    and posicion-8 in self.estado.Gamer[self.estado.Turn] and not self.estado.Free[posicion-16]:
+                if posicion-8 in self.estado.Gamer[turno] and not self.estado.Free[posicion-8] \
+                    and posicion-16 in self.estado.Gamer[turno] and not self.estado.Free[posicion-16]:
                     return True
 
-            else:
-                return False
-            if self.Mover(posicion,1) in self.estado.Gamer[self.estado.Turn] and not self.estado.Free[self.Mover(posicion,1)] \
-                and self.Mover(posicion,-1) in self.estado.Gamer[self.estado.Turn] and not self.estado.Free[self.Mover(posicion,-1)]:
+            
+            elif self.Mover(posicion,1) in self.estado.Gamer[turno] and not self.estado.Free[self.Mover(posicion,1)] \
+                and self.Mover(posicion,-1) in self.estado.Gamer[turno] and not self.estado.Free[self.Mover(posicion,-1)]:
                 return True
 
         else: #estamos en una esquina
-            if self.Mover(posicion,1) in self.estado.Gamer[self.estado.Turn] and not self.estado.Free[self.Mover(posicion,1)] \
-                and self.Mover(posicion,2) in self.estado.Gamer[self.estado.Turn] and not self.estado.Free[self.Mover(posicion,2)]:
+            if self.Mover(posicion,1) in self.estado.Gamer[turno] and not self.estado.Free[self.Mover(posicion,1)] \
+                and self.Mover(posicion,2) in self.estado.Gamer[turno] and not self.estado.Free[self.Mover(posicion,2)]:
                 return True
-            elif self.Mover(posicion,-1) in self.estado.Gamer[self.estado.Turn] and not self.estado.Free[self.Mover(posicion,-1)] \
-                and self.Mover(posicion,-2) in self.estado.Gamer[self.estado.Turn]and not self.estado.Free[self.Mover(posicion,-2)]:
+            elif self.Mover(posicion,-1) in self.estado.Gamer[turno] and not self.estado.Free[self.Mover(posicion,-1)] \
+                and self.Mover(posicion,-2) in self.estado.Gamer[turno]and not self.estado.Free[self.Mover(posicion,-2)]:
                 return True
 
         return False
+
     def EsPasillo(self,posicion):
         return posicion%2 == 1
+
     def NivelAnillo(self,posicion):
         return posicion//8
+
     def Mover(self,origen, distancia):
-        destino = origen + distancia
-        
+        destino = origen + distancia        
         return destino%8+8*(self.NivelAnillo(origen))
+
     def MovimientosValidos(self,posicion):
-        movimientosValidos = {}
-        movimientosValidos.add(self.Mover(posicion,-1))
-        movimientosValidos.add(self.Mover(posicion,+1))
+        movimientosValidos = []
+        
+        if(self.estado.Free[self.Mover(posicion,-1)]==True):
+            movimientosValidos.append(self.Mover(posicion,-1))
+        if(self.estado.Free[self.Mover(posicion,1)]==True):
+            movimientosValidos.append(self.Mover(posicion,1))
         if self.EsPasillo(posicion): #estamos en un pasillo
-            anillo = self.nivelAnillo()
+            anillo = self.NivelAnillo(posicion)
             if anillo==0:
-                movimientosValidos.add(posicion+8)
+                if(self.estado.Free[posicion+8]==True):
+                    movimientosValidos.append(posicion+8)
 
             elif anillo==1:
-                movimientosValidos.add(posicion+8)
-                movimientosValidos.add(posicion-8)
+                if(self.estado.Free[posicion+8]==True):
+                    movimientosValidos.append(posicion+8)
+                if(self.estado.Free[posicion-8]==True):
+                    movimientosValidos.append(posicion-8)
                     
             elif anillo==2:
-                movimientosValidos.add(posicion-8)
+                if(self.estado.Free[posicion-8]==True):
+                    movimientosValidos.append(posicion-8)
         return movimientosValidos
+    def FichasComibles(self):
+        fichasComibles = self.estado.Gamer[(self.estado.Turn+1)%2].copy()
+        fichasValidas = []
+        for ficha in fichasComibles:
+            if not self.comprobarMolino(ficha):
+                fichasValidas.append(ficha)
+        if len(fichasValidas) == 0:                                    
+            #No existen fichas fuera de un molino por lo que todas son comibles
+            fichasValidas = fichasComibles
+        return fichasValidas
+
+    def Sucesores(self):
+        
+        sucesores = []
+        if self.estado.chips > 0:
+            #Fase inicial
+            origen = -1
+            
+            for indice, casillaLibre in enumerate(self.estado.Free):                        
+                if casillaLibre==True: # para cada posicion libre disponible
+                    if self.comprobarMolino(indice):#Si se ha formado un molino, se busca todas las fichas comibles
+                        fichasComibles = self.FichasComibles()
+                        for ficha in fichasComibles:
+                            sucesores.append(Accion(origen,indice,ficha))
+                    else:
+                        sucesores.append(Accion(origen,indice,-1))
+        else:
+            #Fase de movimiento
+            for origen in self.estado.Gamer[self.estado.Turn]:
+                #para cada ficha del jugador con turno
+                for destino in self.MovimientosValidos(origen):
+                    if self.comprobarMolino(destino):
+                        fichasComibles = self.FichasComibles()
+                        for ficha in fichasComibles:
+                            sucesores.append(Accion(origen,destino,ficha))
+                    else:
+                        sucesores.append(Accion(origen,destino,-1))
+        return sucesores
+
+
     def Print(self):
-        matriz = [["0","—","—","—","—","—","1","—","—","—","—","—","2"],
-            ["|"," "," "," "," "," ","|"," "," "," "," "," ","|"],
-            ["|"," ","8","—","—","—","9","—","—","—","10"," ","|"],
-            ["|"," ","|"," "," "," ","|"," "," "," ","|"," ","|"],
-            ["|"," ","|"," ","16","—","17","—","18"," ","|"," ","|"],
-            ["|"," ","|"," ","|"," "," "," ","|"," ","|"," ","|"],
-            ["7","—","15","—","23"," "," "," ","19","—","11","—","3"],
-            ["|"," ","|"," ","|"," "," "," ","|"," ","|"," ","|"],
-            ["|"," ","|"," ","22","—","21","—","20"," ","|"," ","|"],
-            ["|"," ","|"," "," "," ","|"," "," "," ","|"," ","|"],
-            ["|"," ","14","—","—","—","13","—","—","—","12"," ","|"],
-            ["|"," "," "," "," "," ","|"," "," "," "," "," ","|"],
-            ["6","—","—","—","—","—","5","—","—","—","—","—","4"]]
+        matriz =[["  0   ","  —   ","  —   ","  —   ","  —   ","  —   ","  1   ","  —   ","  —   ","  —   ","  —   ","  —   ","  2   "],
+            ["  |   ","      ","      ","      ","      ","      ","  |   ","      ","      ","      ","      ","      ","  |   "],
+            ["  |   ","      ","  8   ","  —   ","  —   ","  —   ","  9   ","  —   ","  —   ","  —   "," 10   ","      ","  |   "],
+            ["  |   ","      ","  |   ","      ","      ","      ","  |   ","      ","      ","      ","  |   ","      ","  |   "],
+            ["  |   ","      ","  |   ","      "," 16   ","  —   "," 17   ","  —   "," 18   ","      ","  |   ","      ","  |   "],
+            ["  |   ","      ","  |   ","      ","  |   ","      ","      ","      ","  |   ","      ","  |   ","      ","  |   "],
+            ["  7   ","  —   "," 15   ","  —   "," 23   ","      ","      ","      "," 19   ","  —   "," 11   ","  —   ","  3   "],
+            ["  |   ","      ","  |   ","      ","  |   ","      ","      ","      ","  |   ","      ","  |   ","      ","  |   "],
+            ["  |   ","      ","  |   ","      "," 22   ","  —   "," 21   ","  —   "," 20   ","      ","  |   ","      ","  |   "],
+            ["  |   ","      ","  |   ","      ","      ","      ","  |   ","      ","      ","      ","  |   ","      ","  |   "],
+            ["  |   ","      "," 14   ","  —   ","  —   ","  —   "," 13   ","  —   ","  —   ","  —   "," 12   ","      ","  |   "],
+            ["  |   ","      ","      ","      ","      ","      ","  |   ","      ","      ","      ","      ","      ","  |   "],
+            ["  6   ","  —   ","  —   ","  —   ","  —   ","  —   ","  5   ","  —   ","  —   ","  —   ","  —   ","  —   ","  4   "]]
 
 
         indice = {0: (0, 0), 1: (0, 6), 2: (0, 12), 8: (2, 2), 9: (2, 6), 10: (2, 10), 16: (4, 4), 17: (4, 6), 18: (4, 8), 7: (6, 0), 15: (6, 2), 23: (6, 4), 19: (6, 8), 11: (6, 10), 3: (6, 12), 22: (8, 4), 21: (8, 6), 20: (8, 8), 14: (10, 2), 13: (10, 6), 12: (10, 10), 6: (12, 0), 5: (12, 6), 4: (12, 12)}
         for x in self.estado.Gamer[0]:
-            matriz[indice[x][0]][indice[x][1]] = f"J{0}({x})"
+            matriz[indice[x][0]][indice[x][1]] = f"J{0}"+"({:02d})".format(x)
         for x in self.estado.Gamer[1]:
-             matriz[indice[x][0]][indice[x][1]] = f"J{1}({x})"
+             matriz[indice[x][0]][indice[x][1]] = f"J{1}"+"({:02d})".format(x)
 
         for x in matriz:
-            print (x)
+            cadena =""
+            for y in x:
+                cadena +=y
+            print(cadena)
+
         
 
 
@@ -173,11 +232,13 @@ def getAccion():
 
 if __name__ =="__main__":
     tablero = Tablero(Estado())#tablero y estado inicial
-    while tablero.estado.chips > 0 or (tablero.estado.Gamer[0].count() >= 3 and tablero.estado.Gamer[1].count() >= 3):
+    while tablero.estado.chips > 0 or (len(tablero.estado.Gamer[0]) >= 3 and len(tablero.estado.Gamer[1]) >= 3):
         tablero.Print()
-        accion = getAccion()
+        #accion = getAccion()
+        accion = random.choice(tablero.Sucesores())
         if tablero.validarAccion(accion): 
             tablero.ejecutarAccion(accion)
         else:
             print("Accion no valida")
+    tablero.Print()
     print ("partida terminada")
