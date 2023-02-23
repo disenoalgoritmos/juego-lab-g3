@@ -1,16 +1,48 @@
 import random
-
+import json
 class Estado:
     def __init__(self):
         self.Free = [True] *24
         self.Gamer = [[],[]]
         self.Turn = 0
         self.chips = 18
+       
+    def to_json(self):
+        estado_dict = {
+        "Free": [],
+        "Gamer": self.Gamer,
+        "Turn": self.Turn,
+        "chips": [self.chips//2,(self.chips//2)+(self.chips%2)]
+        }
+        for indice,x in enumerate(self.Free):
+            if x:
+                estado_dict.get("Free").append(indice)
+        return json.dumps(estado_dict)
+
 class Accion:
     def __init__(self,origen,destino,kill):
         self.origen=origen
         self.destino = destino
         self.kill = kill
+    def to_json(self):
+        accion_dict = {
+        "POS_INIT": self.origen,
+        "NEXT_POS": self.destino,
+        "KILL": self.kill
+        }
+        return json.dumps(accion_dict)
+class Sucesor:
+    def __init__(self,estado,accion,new_estado) :
+        self.estado = estado
+        self.accion = accion
+        self.new_estado = new_estado
+    def to_json(self):
+        sucesor_dict = {
+            "STATE": self.estado.to_json(),
+            "MOVE": self.accion.to_json(),
+            "NEXT_STATE": self.new_estado.to_json()
+        }
+        return sucesor_dict
 class Tablero:
     def __init__(self,estado):
         self.estado = estado
@@ -71,7 +103,7 @@ class Tablero:
         if accion.kill != -1:
             self.estado.Gamer[(self.estado.Turn+1)%2].remove(accion.kill)
             self.estado.Free[accion.kill] = True 
-        print (f"Accion: origen={accion.origen}, destino={accion.destino}, kill={accion.kill}, turno={self.estado.Turn},fichas sobrantes: {self.estado.chips}")
+        #print (f"Accion: origen={accion.origen}, destino={accion.destino}, kill={accion.kill}, turno={self.estado.Turn},fichas sobrantes: {self.estado.chips}")
         #self.Print()
         self.estado.Turn = (self.estado.Turn+1)%2
 
@@ -163,9 +195,9 @@ class Tablero:
             fichasValidas = fichasComibles
         return fichasValidas
 
-    def Sucesores(self):
+    def Acciones(self):
         
-        sucesores = []
+        acciones = []
         if self.estado.chips > 0:
             #Fase inicial
             origen = -1
@@ -175,9 +207,9 @@ class Tablero:
                     if self.comprobarMolino(indice):#Si se ha formado un molino, se busca todas las fichas comibles
                         fichasComibles = self.FichasComibles()
                         for ficha in fichasComibles:
-                            sucesores.append(Accion(origen,indice,ficha))
+                            acciones.append(Accion(origen,indice,ficha))
                     else:
-                        sucesores.append(Accion(origen,indice,-1))
+                        acciones.append(Accion(origen,indice,-1))
         else:
             #Fase de movimiento
             for origen in self.estado.Gamer[self.estado.Turn]:
@@ -186,12 +218,38 @@ class Tablero:
                     if self.comprobarMolino(destino):
                         fichasComibles = self.FichasComibles()
                         for ficha in fichasComibles:
-                            sucesores.append(Accion(origen,destino,ficha))
+                            acciones.append(Accion(origen,destino,ficha))
                     else:
-                        sucesores.append(Accion(origen,destino,-1))
-        return sucesores
+                        acciones.append(Accion(origen,destino,-1))
+        
+        
+        return acciones
+    
+    def sucesor(self,accion):
+        estado_sucesor = Estado()
+        estado_sucesor.Free = self.estado.Free.copy()
+        estado_sucesor.Gamer = self.estado.Gamer.copy()
+        estado_sucesor.Turn = self.estado.Turn
+        estado_sucesor.chips = self.estado.chips
 
 
+        new_estado_sucesor = Estado()
+        new_estado_sucesor.Free = self.estado.Free.copy()
+        new_estado_sucesor.Gamer = self.estado.Gamer.copy()
+        new_estado_sucesor.Turn = self.estado.Turn
+        new_estado_sucesor.chips = self.estado.chips
+
+        tableroSucesor = Tablero(new_estado_sucesor)
+        tableroSucesor.ejecutarAccion(accion)
+        sucesor = Sucesor(estado_sucesor,accion,new_estado_sucesor)
+
+
+        return sucesor
+    def is_end(self):#true si ha terminado
+        acciones = self.Acciones()
+        if len(acciones) ==0: #no hay movimientos posible
+            return True
+        return not ( self.estado.chips > 0 or (len(self.estado.Gamer[0]) >= 3 and len(self.estado.Gamer[1]) >= 3))
     def Print(self):
         matriz =[["  0   ","  —   ","  —   ","  —   ","  —   ","  —   ","  1   ","  —   ","  —   ","  —   ","  —   ","  —   ","  2   "],
             ["  |   ","      ","      ","      ","      ","      ","  |   ","      ","      ","      ","      ","      ","  |   "],
@@ -232,13 +290,16 @@ def getAccion():
 
 if __name__ =="__main__":
     tablero = Tablero(Estado())#tablero y estado inicial
-    while tablero.estado.chips > 0 or (len(tablero.estado.Gamer[0]) >= 3 and len(tablero.estado.Gamer[1]) >= 3):
+    while not tablero.is_end():
         tablero.Print()
         #accion = getAccion()
-        accion = random.choice(tablero.Sucesores())
+        accion = random.choice(tablero.Acciones())     
+        print("json")
+        print(tablero.sucesor(accion).to_json())
         if tablero.validarAccion(accion): 
             tablero.ejecutarAccion(accion)
         else:
             print("Accion no valida")
     tablero.Print()
+
     print ("partida terminada")
