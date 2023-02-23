@@ -228,14 +228,14 @@ class Tablero:
     def sucesor(self,accion):
         estado_sucesor = Estado()
         estado_sucesor.Free = self.estado.Free.copy()
-        estado_sucesor.Gamer = self.estado.Gamer.copy()
+        estado_sucesor.Gamer = [self.estado.Gamer[0].copy(),self.estado.Gamer[1].copy()]
         estado_sucesor.Turn = self.estado.Turn
         estado_sucesor.chips = self.estado.chips
 
 
         new_estado_sucesor = Estado()
         new_estado_sucesor.Free = self.estado.Free.copy()
-        new_estado_sucesor.Gamer = self.estado.Gamer.copy()
+        new_estado_sucesor.Gamer = [self.estado.Gamer[0].copy(),self.estado.Gamer[1].copy()]
         new_estado_sucesor.Turn = self.estado.Turn
         new_estado_sucesor.chips = self.estado.chips
 
