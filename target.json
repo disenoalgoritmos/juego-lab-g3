@@ -1,7 +1,7 @@
 {
-    "table": [
+    "state": [
         {
-            "free": [
+            "FREE": [
                 0,
                 1,
                 2,
@@ -27,22 +27,22 @@
                 22,
                 23
             ],
-            "gamers": [
+            "GAMER": [
                 [],
                 []
             ],
-            "chips": [
+            "TURN": 0,
+            "CHIPS": [
                 9,
                 9
-            ],
-            "turn": 0
+            ]
         }
     ],
-    "action": [
+    "move": [
         {
-            "orig": 0,
-            "target": 1,
-            "kill": 2
+            "POS_INIT": 0,
+            "NEXT_POS": 1,
+            "KILL": 2
         }
     ]
 }
