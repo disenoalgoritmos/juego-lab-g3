@@ -1,5 +1,6 @@
 import random
 import json
+import copy
 class Estado:
     def __init__(self):
         self.Free = [True] *24
@@ -226,23 +227,13 @@ class Tablero:
         return acciones
     
     def sucesor(self,accion):
-        estado_sucesor = Estado()
-        estado_sucesor.Free = self.estado.Free.copy()
-        estado_sucesor.Gamer = [self.estado.Gamer[0].copy(),self.estado.Gamer[1].copy()]
-        estado_sucesor.Turn = self.estado.Turn
-        estado_sucesor.chips = self.estado.chips
-
-
-        new_estado_sucesor = Estado()
-        new_estado_sucesor.Free = self.estado.Free.copy()
-        new_estado_sucesor.Gamer = [self.estado.Gamer[0].copy(),self.estado.Gamer[1].copy()]
-        new_estado_sucesor.Turn = self.estado.Turn
-        new_estado_sucesor.chips = self.estado.chips
+        estado_sucesor = copy.deepcopy(self.estado)
+        new_estado_sucesor = copy.deepcopy(self.estado)
 
         tableroSucesor = Tablero(new_estado_sucesor)
         tableroSucesor.ejecutarAccion(accion)
+        
         sucesor = Sucesor(estado_sucesor,accion,new_estado_sucesor)
-
 
         return sucesor
     def is_end(self):#true si ha terminado
@@ -289,17 +280,19 @@ def getAccion():
     return Accion(origen,destino,kill)
 
 if __name__ =="__main__":
-    tablero = Tablero(Estado())#tablero y estado inicial
-    while not tablero.is_end():
+    for i in range(1,100):
+        tablero = Tablero(Estado())#tablero y estado inicial
+        while not tablero.is_end():
+            tablero.Print()
+            #accion = getAccion()
+            accion = random.choice(tablero.Acciones())     
+            print("json")
+            print(tablero.sucesor(accion).to_json())
+            if tablero.validarAccion(accion): 
+                tablero.ejecutarAccion(accion)
+            else:
+                print("Accion no valida")
         tablero.Print()
-        #accion = getAccion()
-        accion = random.choice(tablero.Acciones())     
-        print("json")
-        print(tablero.sucesor(accion).to_json())
-        if tablero.validarAccion(accion): 
-            tablero.ejecutarAccion(accion)
-        else:
-            print("Accion no valida")
-    tablero.Print()
 
-    print ("partida terminada")
+        print ("partida "+str(i)+" terminada")
+    print("Todas las partidas terminadas")
