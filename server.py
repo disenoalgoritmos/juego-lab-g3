@@ -84,10 +84,10 @@ def inicializaBBDD(nombre_archivo):
     return nombre_archivo,candado_archivo_texto
 
 
-def inserta_credenciales_archivo(self, user, password):
+def inserta_credenciales_archivo(user, password, nombre_archivo):
         '''Añade a la base de datos el usuario y contraseña pasados como parámetros'''
 
-        with open(self.nombre_archivo,"a", encoding="utf-8") as archivo_escribir:
+        with open(nombre_archivo,"a", encoding="utf-8") as archivo_escribir:
             archivo_escribir.write("\n")
             archivo_escribir.write("[USUARIO] "+ user+"\n")
             archivo_escribir.write("[CONTRASEÑA] " + password+"\n")
@@ -95,14 +95,14 @@ def inserta_credenciales_archivo(self, user, password):
         print(f"Añadidas las credenciales de: {user}\n")
 
 
-def busca_user_archivo(self, user):
+def busca_user_archivo(user, nombre_archivo, candado_archivo_texto):
         """Devuelve la línea en la que está escrito, dentro del archivo"""
         """ de texto que se usa como base de datos, el nombre de un usuario buscado""" # pylint:disable=W0105
 
-        with self.candado_archivo_texto:
+        with candado_archivo_texto:
             #controlo el archivo persistente con sección crítica
 
-            with open(self.nombre_archivo,"r", encoding="utf-8") as archivo_leer:
+            with open(nombre_archivo,"r", encoding="utf-8") as archivo_leer:
                 lineas_leidas = archivo_leer.readlines()
                 archivo_leer.close()
 
@@ -116,15 +116,15 @@ def busca_user_archivo(self, user):
         return -1
 
 
-def comprueba_credenciales(self, user, password):
+def comprueba_credenciales(user, password, nombre_archivo, candado_archivo_texto):
         """Verifica que un usuario y contraseña estén en el """
         """arhivo de texto usado como base de datos""" # pylint:disable=W0105
         credenciales_validas = False
 
-        with self.candado_archivo_texto:
+        with candado_archivo_texto:
             #controlo el archivo persistente con sección crítica
 
-            with  open(self.nombre_archivo,"r",encoding="utf-8") as archivo_leer:
+            with  open(nombre_archivo,"r",encoding="utf-8") as archivo_leer:
                 lineas_leidas = archivo_leer.readlines()
                 archivo_leer.close()
 
@@ -140,18 +140,18 @@ def comprueba_credenciales(self, user, password):
         return credenciales_validas
 
 
-def elimina_lineas_archivo(self, num_linea):
+def elimina_lineas_archivo(num_linea, nombre_archivo, candado_archivo_texto):
         """Reescribe el contenido del archivo de texto usado como"""
         """base de datos saltándose ciertsa líneas""" # pylint:disable=W0105
 
-        with self.candado_archivo_texto:
+        with candado_archivo_texto:
             #controlo el archivo persistente con sección crítica
 
-            with open(self.nombre_archivo,"r", encoding="utf-8") as archivo_leer:
+            with open(nombre_archivo,"r", encoding="utf-8") as archivo_leer:
                 lineas_leidas = archivo_leer.readlines()
                 archivo_leer.close()
 
-            with open(self.nombre_archivo,"w", encoding="utf-8") as archivo_leer:
+            with open(nombre_archivo,"w", encoding="utf-8") as archivo_leer:
 
                 for i in range(len(lineas_leidas)): # pylint:disable=C0200
                     if i not in [num_linea,num_linea + 1]: #se salta las líneas que contienen
@@ -162,33 +162,50 @@ def elimina_lineas_archivo(self, num_linea):
                 archivo_leer.close()
 
 
-def addUser(self, user, passwordHash):
+def addUser(user, passwordHash, nombre_archivo, candado_archivo_texto):
     "Función administrativa que permite añadir unas nuevas credenciales en el almacén de datos"
     "si el token administrativo es correcto" # pylint:disable=W0105
 
-    if self.busca_user_archivo(user) == -1 :
+    if busca_user_archivo(user,nombre_archivo,candado_archivo_texto) == -1 :
     #controla el caso de querer registrar un usuario que ya existe
     #(basta con que el nombre del usuario esté en la BD)
-        with self.candado_archivo_texto:
+        with candado_archivo_texto:
             #controlo el archico de credenciales de usuario con sección crítica
-            self.inserta_credenciales_archivo(user,passwordHash)
+            inserta_credenciales_archivo(user,passwordHash,nombre_archivo)
 
            
-def removeUser(self, user, passwordHash):
+def removeUser(user, passwordHash, nombre_archivo, candado_archivo_texto):
         "Función administrativa que permite eliminar unas credenciales" 
 
-        if comprueba_credenciales(user,passwordHash):
-            posicion_user_archivo = self.busca_user_archivo(user)
+        if comprueba_credenciales(user,passwordHash,nombre_archivo,candado_archivo_texto):
+            posicion_user_archivo = busca_user_archivo(user,nombre_archivo,candado_archivo_texto)
 
             if  posicion_user_archivo != -1: #controla el caso de que se intente
             #borrar un user inexistente
 
                 #hay que borrar al user tanto del archivo ...
-                self.elimina_lineas_archivo(posicion_user_archivo)
+                elimina_lineas_archivo(posicion_user_archivo,nombre_archivo,candado_archivo_texto)
                 print(f"Eliminadas las credenciales de: {user}\n")
         #else:
             #habría que devolver un error o algo así
 
-#falta crear el metodo modifyUser()
-            
-     
+def modifyUser(user, passwordHash, new_password, nombre_archivo, candado_archivo_texto):
+    if comprueba_credenciales(user,passwordHash,nombre_archivo,candado_archivo_texto):
+        removeUser(user,passwordHash,nombre_archivo,candado_archivo_texto)
+        addUser(user,new_password,nombre_archivo,candado_archivo_texto)
+        print(f"Modificadas las credenciales de: {user}\n")
+
+if __name__ == "__main__":
+
+    nombre_archivo,candado_archivo_texto = inicializaBBDD("credenciales.txt")
+
+    print(comprueba_credenciales("Enrique","hola",nombre_archivo,candado_archivo_texto))
+    addUser("Enrique","hola",nombre_archivo,candado_archivo_texto)
+    print(comprueba_credenciales("Enrique","hola",nombre_archivo,candado_archivo_texto))
+
+    modifyUser("Enrique","hola","adios",nombre_archivo,candado_archivo_texto)
+    print(comprueba_credenciales("Enrique","hola",nombre_archivo,candado_archivo_texto))
+    print(comprueba_credenciales("Enrique","adios",nombre_archivo,candado_archivo_texto))
+
+    #removeUser("Enrique","hola",nombre_archivo,candado_archivo)
+    #print(comprueba_credenciales("Enrique","hola",nombre_archivo,candado_archivo_texto))
