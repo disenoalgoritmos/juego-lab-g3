@@ -39,11 +39,11 @@ class Sucesor:
         self.new_estado = new_estado
     def to_json(self):
         sucesor_dict = {
-            "STATE": self.estado.to_json(),
-            "MOVE": self.accion.to_json(),
-            "NEXT_STATE": self.new_estado.to_json()
+            "STATE": json.loads(self.estado.to_json()),
+            "MOVE": json.loads(self.accion.to_json()),
+            "NEXT_STATE": json.loads(self.new_estado.to_json())
         }
-        return sucesor_dict
+        return json.dumps(sucesor_dict)
 class Tablero:
     def __init__(self,estado):
         self.estado = estado
