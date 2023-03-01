@@ -6,7 +6,7 @@ def __init__(self):
     self.password=""
     self.new_password=""
 
-def menu():
+def menu(self):
     opcion = input("Seleccione una opción: ")
     print("1. Iniciar sesión")
     print("2. Registrarme como nuevo usuario")
@@ -27,12 +27,12 @@ def menu():
         print("Opción inválida, introduzca un número")
         menu()
 
-def login():
+def login(self):
     username = input("Ingrese su nombre de usuario: ")
     password = input("Ingrese su contraseña: ")
     return {"Type": "LOG_IN", "user": username , "pass" : password}
 
-def register():
+def register(self):
     username = input("Ingrese su nombre de usuario: ")
     password = input("Ingrese su contraseña: ")
     return {"Type" : "ADD_USER", "user" : username,"pass" : password}
@@ -62,7 +62,7 @@ def comprobeResponse(self, message):
         client_socket.send(json.dumps(message).encode())
         comprobeResponse(message)
 
-def menu2():
+def menu2(self):
     opcion = input("Seleccione una opción: ")
     print("1. Modificar mi usuario")
     print("2. Eliminar mi usuario")
@@ -97,7 +97,7 @@ def modifyUser(self):
     new_password = input("Ingrese su nueva contraseña: ")
     return {"Type" : "MODIFY_USER", "user" : self.user, "pass" : self.password, "new_pass" : new_password}
 
-def comprobeResponse2(message):
+def comprobeResponse2(self, message):
     response = client_socket.recv(1024).decode()
     
     if message['Type']=="MODIFY_USER" and response == "OK":
