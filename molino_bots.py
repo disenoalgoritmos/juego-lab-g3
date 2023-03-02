@@ -101,30 +101,6 @@ def imprime_tablero(state):
 
     print(cadena_tablero)
 
-def pide_casilla_valida(casillas_validas):
-
-    casilla_elegida = 0
-    casilla_incorrecta = True
-             
-    while casilla_incorrecta:
-            print("<<< Lista de casilas válidas:",casillas_validas,">>>")
-            print("<<< Por favor, introduzca a continuación una casilla de entre ellas: >>>")
-            
-            casilla_elegida = input()
-            
-            try:
-                casilla_elegida = int(casilla_elegida)
-
-                if casilla_elegida in casillas_validas:
-                    casilla_incorrecta = False
-                else: 
-                    print("\n<<< [ERROR] Debe escribir un número entero que represente a una casilla que sea válida. Repita el proceso >>>\n")
-                
-            except:
-                print("\n<<< [ERROR] Debe escribir un número entero que represente a una casilla que sea válida. Repita el proceso >>>\n")
-                
-    return casilla_elegida     
-
 def cambia_turno(turno):
     if turno == 0:
         return 1
@@ -159,43 +135,27 @@ def comprueba_todo_molinos(state,turno_adversario):
         casillas_validas = state.get('GAMER')[turno_adversario]
     return casillas_validas
 
-def etapa_inicial(state):
+def etapa_inicial(state): #LUEGO HABRÁ QUE PASAR COMO ARGUMENTO UN SUCESOR SÓLO
 
     sucesor_state = None #########################################
 
-    while state.get('CHIPS')[0] != 0 or state.get('CHIPS')[1] != 0:
+    while state.get('CHIPS')[0] != 0 or state.get('CHIPS')[1] != 0: ###########################
 
         if sucesor_state != None and not valida_estado_inicial_rival(sucesor_state.get('STATE'),sucesor_state) and not valida_jugada(sucesor_state.get('STATE'),sucesor_state): ######## cambiar primer argumento luego
-            return
+            return 
         
         print("\n-----------------------------------------------------------------------------------------------------------------------------\n")
         print("<<< [FASE INICIAL] Turno del jugador " + str(state.get('TURN')+1) + " >>>\n")
         print("<<< [FASE INICIAL] Fichas que todavía no ha puesto en juego:",state.get('CHIPS')[state.get('TURN')], ">>>")
         imprime_tablero(state) ##################################
 
-        state_init = copy.deepcopy((state))
-        
-        casilla_colocar_ficha = pide_casilla_valida(state.get('FREE'))
-
-        state.get('GAMER')[state.get('TURN')].append(casilla_colocar_ficha)
-        state.get('GAMER')[state.get('TURN')].sort() ###################################
-        state.get('FREE').remove(casilla_colocar_ficha)
-
-        if encuentra_molinos(state.get('TURN'),casilla_colocar_ficha,state):
-            imprime_tablero(state) ##################################
-            print("<<<[FASE INICIAL] ¡Ha formado un molino! Ahora deberá escoger una ficha en juego del oponente para eliminarla >>>")
-            casilla_eliminar_ficha = pide_casilla_valida(comprueba_todo_molinos(state,cambia_turno(state.get('TURN'))))
-            state.get('GAMER')[cambia_turno(state.get('TURN'))].remove(casilla_eliminar_ficha)
-            state.get('FREE').append(casilla_eliminar_ficha)
-            state.get('FREE').sort() #############################################
-            move = devuelve_move(-1,casilla_colocar_ficha,casilla_eliminar_ficha)
-        else:
-            move = devuelve_move(-1,casilla_colocar_ficha,-1)
-        
-        state.get('CHIPS')[state.get('TURN')] -= 1
-        state['TURN'] = cambia_turno(state.get('TURN'))
-
-        sucesor_state = devuelve_sucesor(state_init,move,state)
+        lista_sucesores = crea_sucesores(state.get('TURN'),state)
+        imprime_sucesores(lista_sucesores) 
+        eleccion_sucesor = pide_opcion_valida(list(range(1,len(lista_sucesores)+1))) -1  # LUEGO NO HARÍA FALTA PEDIR UN NÚMERO CORRECTO
+        sucesor_state = lista_sucesores[eleccion_sucesor]
+        state = simula_movimiento_sobre_estado(state,sucesor_state.get('MOVE')) # QUITAR LUEGO CUANDO SE CAMBIE EL PARÁMETRO DE ENTRADA
+    
+    return sucesor_state ##################
 
 def comprueba_movimiento_entre_anillos(state, posicion_actual):
 
@@ -243,10 +203,13 @@ def obtiene_casillas_libres_movimiento(state, posicion_elegida):
 
 def imprime_sucesores(lista_sucesores):
     contador = 1
-    print("\n---------------- LISTA DE SUCESORES -------------------")
+    print("\n---------------- LISTA DE SUCESORES -------------------\n")
     for sucesor in lista_sucesores:
-        print("   " + str(contador) + "º)  ",devuelve_move(sucesor[0],sucesor[1],'?'))
+        print("SUCESOR NÚMERO ",contador)
         contador += 1
+        for atributo in sucesor:
+            print(sucesor.get(atributo))
+        print()    
     print("-------------------------------------------------------\n")
 
 def pide_opcion_valida(opciones_validas):
@@ -277,8 +240,8 @@ def etapa_movimiento(state):
 
     sucesor_state = None
 
-    while True:                           #len(state.get('GAMER')[0]) > 2 and len(state.get('GAMER')[1]) > 2:
-        ######## cambiar primer argumento luego
+    while True:                          
+
         if sucesor_state != None and not valida_estado_inicial_rival(sucesor_state.get('STATE'),sucesor_state) and not valida_jugada(sucesor_state.get('STATE'),sucesor_state):  
             return
 
@@ -289,39 +252,11 @@ def etapa_movimiento(state):
         if comprueba_condiciones_derrota(state):
             return cambia_turno(state.get('TURN'))
 
-        state_init = copy.deepcopy((state))
-
-        casillas_mover = devuelve_fichas_a_mover(state,state.get('TURN'))
-        
-        print("<<< [FASE DE MOVIMIENTO] Debe mover una posición alguna ficha que pueda desplazarse >>>")
-        casilla_mover_ficha = pide_casilla_valida(casillas_mover)
-        sucesores = obtiene_casillas_libres_movimiento(state,casilla_mover_ficha)
-        imprime_sucesores(sucesores) ##################################
-        sucesor_elegido = pide_opcion_valida(list(range(1,len(sucesores)+1))) -1
-        state.get('GAMER')[state.get('TURN')].remove(sucesores[sucesor_elegido][0])
-        state.get('GAMER')[state.get('TURN')].append(sucesores[sucesor_elegido][1])
-        state.get('GAMER')[state.get('TURN')].sort() #############################################
-        state.get('FREE').append(sucesores[sucesor_elegido][0])
-        state.get('FREE').remove(sucesores[sucesor_elegido][1])
-
-        if encuentra_molinos(state.get('TURN'),sucesores[sucesor_elegido][1],state):
-            imprime_tablero(state) ##################################
-            print("<<<[FASE MOVIMIENTO] ¡Ha formado un molino! Ahora deberá escoger una ficha en juego del oponente para eliminarla >>>")
-            casilla_eliminar_ficha = pide_casilla_valida(comprueba_todo_molinos(state,cambia_turno(state.get('TURN'))))
-            state.get('GAMER')[cambia_turno(state.get('TURN'))].remove(casilla_eliminar_ficha)
-            state.get('FREE').append(casilla_eliminar_ficha)
-            move = devuelve_move(sucesores[sucesor_elegido][0],sucesores[sucesor_elegido][1],casilla_eliminar_ficha)
-        else:
-            move = devuelve_move(sucesores[sucesor_elegido][0],sucesores[sucesor_elegido][1],-1)
-
-        state.get('FREE').sort() ###########################
-
-        state['TURN'] = cambia_turno(state.get('TURN'))
-
-        sucesor_state = devuelve_sucesor(state_init,move,state)
-        
-    print("\n-----------------------------------------------------------------------------------------------------------------------------\n")
-    return cambia_turno(state.get('TURN'))
+        lista_sucesores = crea_sucesores(state.get('TURN'),state)
+        imprime_sucesores(lista_sucesores) 
+        eleccion_sucesor = pide_opcion_valida(list(range(1,len(lista_sucesores)+1))) -1  # LUEGO NO HARÍA FALTA PEDIR UN NÚMERO CORRECTO
+        sucesor_state = lista_sucesores[eleccion_sucesor]
+        state = simula_movimiento_sobre_estado(state,sucesor_state.get('MOVE')) # QUITAR LUEGO CUANDO SE CAMBIE EL PARÁMETRO DE ENTRADA
 
 def valida_estado_inicial_rival(state_enviado, sucesor_rival):
 
@@ -411,7 +346,7 @@ def comprueba_condiciones_derrota(state_analizar):
     #puede usarse para comprobar que has ganado con el state que vayas a eviar o para 
     #comprobar que has perdido con el state que recibas (después de verificar su validez)
     if len(state_analizar.get('GAMER')[state_analizar.get('TURN')]) <= 2:
-        print("<<< [FIN DEL JUEGO] ¡El jugador " + str(state_analizar.get('TURN')) + " posee 2 o menos fichas en su poder >>>")
+        print("<<< [FIN DEL JUEGO] ¡El jugador '" + str(state_analizar.get('TURN')) + "' posee 2 o menos fichas en su poder >>>")
         print("\n-----------------------------------------------------------------------------------------------------------------------------\n")    
         return True
     
@@ -462,8 +397,8 @@ if __name__ == "__main__":
     state,accion = cargar_datos("target.json")
     #escribe_datos("target.json",state)#,random.randint(1, 2))
 
-    etapa_inicial(state)
-    ganador = etapa_movimiento(state)
+    sucesor_resultado = etapa_inicial(state)
+    ganador = etapa_movimiento(sucesor_resultado.get('NEXT_STATE'))
     #print("\n\n<<< [GANADOR] Jugador " + str(ganador +1) + ">>>")
     print("\n[___FIN_DEL_PROGRAMA___]\n")
     #escribe_datos("target.json")
