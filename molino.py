@@ -19,6 +19,36 @@ class Estado:
             if x:
                 estado_dict.get("Free").append(indice)
         return json.dumps(estado_dict)
+    def NewAccion(self):
+        #¿Tiene sentido usar un generador de acciones para evitar tener en memoria toda una lista de acciones cuando en este mismo metodo
+        #se crea otra lista con las fichas comibles?¿Habria que convertir fichasComibles() en otro generador?
+        tablero = Tablero(self)
+        if self.chips > 0:
+            #Fase inicial
+            origen = -1
+            
+            for indice, casillaLibre in enumerate(self.Free):                        
+                if casillaLibre==True: # para cada posicion libre disponible
+                    if tablero.comprobarMolino(indice):#Si se ha formado un molino, se busca todas las fichas comibles
+                        fichasComibles = tablero.FichasComibles()                        
+                        for ficha in fichasComibles:
+                            yield Accion(origen,indice,ficha)
+                    else:
+                       yield Accion(origen,indice,-1)
+        else:
+            #Fase de movimiento
+            for origen in self.Gamer[self.Turn]:
+                #para cada ficha del jugador con turno
+                for destino in self.MovimientosValidos(origen):
+                    if self.comprobarMolino(destino):
+                        fichasComibles = self.FichasComibles()
+                        for ficha in fichasComibles:
+                            yield Accion(origen,destino,ficha)
+                    else:
+                        yield Accion(origen,destino,-1)
+        
+        
+
 
 class Accion:
     def __init__(self,origen,destino,kill):
@@ -270,6 +300,22 @@ class Tablero:
             print(cadena)
 
         
+
+
+def testGeneradorAcciones(tablero:Tablero):
+    #Distintas formas de usar generadores
+    for accion in tablero.estado.NewAccion():
+        print(accion.to_json())
+    generador = tablero.estado.NewAccion()
+    try:
+        accion = next(generador)
+        print(accion.to_json())
+    except StopIteration:
+        print("No hay mas elementos en el generador")
+    
+    if(next(generador,None)==None):#Usa el valor por defecto None cuando no hay mas elementos
+        print("No hay mas elementos en el generador")
+
 
 
 
