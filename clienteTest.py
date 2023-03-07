@@ -32,7 +32,10 @@ async def tcp_echo_client(message):
     message = json.dumps(msg_Modify_user)
     print(f'Send: {message!r}')
     writer.write(message.encode())
+
     await writer.drain()
+    data = await reader.read(100)
+    print(f'Received: {data.decode()!r}')
 
 
     #Log in
@@ -62,12 +65,43 @@ async def tcp_echo_client(message):
     data = await reader.read(100)
     print(f'Received: {data.decode()!r}')
 
+
+    #join game
+    msg_Join_Game = {
+        "TYPE":"JOIN_GAME",
+        "ID_GAME":"NachoGame",
+        "ADDR":["ip","puerto"]#provisional
+        }
+    message = json.dumps(msg_Join_Game)
+    print(f'Send: {message!r}')
+    writer.write(message.encode())
+    await writer.drain()
+
+    data = await reader.read(100)
+    print(f'Received: {data.decode()!r}')
+
+
+
     #new game2
     msg_New_Game = {
         "TYPE":"NEW_GAME",
         "ID_GAME":"NachoGame2"
         }
     message = json.dumps(msg_New_Game)
+    print(f'Send: {message!r}')
+    writer.write(message.encode())
+    await writer.drain()
+
+    data = await reader.read(100)
+    print(f'Received: {data.decode()!r}')
+
+    #join game2 Esta llamada deberia dar error, no puedes unirte a 2 partidas desde la misma conexion
+    msg_Join_Game = {
+        "TYPE":"JOIN_GAME",
+        "ID_GAME":"NachoGame2",
+        "ADDR":["ip2","puerto2"]#provisional
+        }
+    message = json.dumps(msg_Join_Game)
     print(f'Send: {message!r}')
     writer.write(message.encode())
     await writer.drain()

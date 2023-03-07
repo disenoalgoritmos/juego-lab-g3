@@ -29,7 +29,7 @@ C---->S {type:JOIN_GAME,id_game:id,addr:[ip,port]} addr es la direccion del nuev
             C---->G {Type:Response,MESSAGE:OK}  #Aqui Game deberia esperar a recibir los ok de ambos jugadores
             #Aqui el jugador con el turno 0 enviaria un mensage MOVE y empezaria el bucle
 
-            G---->S {type:RESULT, result:id_user/empate/anulada}
+            G---->S {type:RESULT,id_game:id, result:id_user/empate/anulada}
         G---->C {type:RESPONSE,MESSAGE:error}   #El servidor GAME a rechazado el join por alguna razon
     S----C {Type:RESPONSE,MESSAGE:ERROR}    #El servidor principal a rechazado el join por alguna razon
 

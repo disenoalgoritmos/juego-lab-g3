@@ -4,18 +4,21 @@ import json
 import os
 import subprocess
 
+
+
 class Servidor:
     def __init__(self) -> None:
 
-        self.users_connections = {}
-        self.games = {}
+        #self.users_connections = {}#Borrar
+        self.games = {}#{idGame:[(j1,addr1),(j2,addr2)]}
 
         self.nombre_archivo,self.candado_archivo_texto = self.inicializaBBDD("credenciales.txt")
 
 
     async def handle_server(self,reader,writer):
         addr = writer.get_extra_info('peername')#Direccion del usuario que se ha conectado
-        user = ""#Nombre del usuario que esta logueado y asignado a esta conexion
+        user = "" #Nombre del usuario que esta logueado y asignado a esta conexion
+        id_game_user='' #Indica el id del game en el que esta esperando o jugando el jugador
         while not writer.is_closing():#Mientras el servidor no corte la conexion
 
             data = await reader.read(1024)#cambiar a readline?
@@ -109,7 +112,7 @@ class Servidor:
                 #comprobamos que tiene las credenciales para borrar el usuario
                 if(self.comprueba_credenciales(msg_json.get("USER"),msg_json.get("PASSWORD"),self.nombre_archivo,self.candado_archivo_texto)):
                     
-                    self.users_connections[msg_json.get("USER")] = addr
+                    #self.users_connections[msg_json.get("USER")] = addr
                     user = msg_json.get("USER")
                     print(f'Login del usuario : {msg_json.get("USER")}')
                     msg_response = {
@@ -128,31 +131,33 @@ class Servidor:
                     writer.write(json.dumps(msg_response).encode())
                     await writer.drain()
             elif(msg_type=="LOG_OUT"):
-                #comprobamos que tiene las credenciales para borrar el usuario
-                if(self.comprueba_credenciales(msg_json.get("USER"),msg_json.get("PASSWORD"),self.nombre_archivo,self.candado_archivo_texto)):
-                    value = self.users_connections.pop(msg_json.get("USER"),None)
-                    if(value !=None):
-                        self.users_connections[msg_json.get("USER")] = addr
-                        #Se busca si el jugador estaba esperando en alguna partida
-                        #No se eliminan las partidas donde ya habia 2 jugadores porque se entienden que ya estan en curso                        
-                        result = filter(lambda x: x[1][0]==user,self.games.items())
-                        #Se eliminan las partidas del jugador
-                        for game in result:
-                            self.games.pop(game[0])
-                            print(f'Eliminado juego:{game}')
-                        user = ""
-                        print(f'Log out del usuario : {msg_json.get("USER")}')
+                user_log_out = msg_json.get("USER")
 
-                        msg_response = {
-                            "TYPE":"RESPONSE",
-                            "MESSAGE":"OK"
-                            }
-                    else:
-                        print(f'El usuario {msg_json.get("USER")} no esta logueado')
-                        msg_response = {
-                            "TYPE":"RESPONSE",
-                            "MESSAGE":"ERROR"
-                            }
+                #Comprobamos que el usuario logueado sea el mismo que esta intentado desconectarse 
+                if(user_log_out !=user):
+                    msg_response = {
+                        "TYPE":"RESPONSE",
+                        "MESSAGE":"ERROR"
+                        }
+                
+                #comprobamos que tiene las credenciales para borrar el usuario
+                elif(self.comprueba_credenciales(user_log_out,msg_json.get("PASSWORD"),self.nombre_archivo,self.candado_archivo_texto)):
+
+                    #Se comprueba si la conexion tiene asignada una partida
+                    #Se comprueba si el jugador esta solo en dicha partida
+                    #No se eliminan las partidas donde ya habia 2 jugadores porque se entienden que ya estan en curso                        
+                    if id_game_user != "" and len(self.games.get(id_game_user)) ==1:
+                        self.games.pop(id_game_user)
+                        print(f'Eliminado juego:{id_game_user}')
+                        id_game_user =''
+                    user = ""
+                    print(f'Log out del usuario : {msg_json.get("USER")}')
+
+                    msg_response = {
+                        "TYPE":"RESPONSE",
+                        "MESSAGE":"OK"
+                        }
+
                     writer.write(json.dumps(msg_response).encode())
                     await writer.drain()
                     
@@ -166,14 +171,14 @@ class Servidor:
                     await writer.drain()
             elif(msg_type=="NEW_GAME"):
                 id_game = msg_json.get("ID_GAME")
-                if id_game in self.games:
+                if id_game in self.games.keys():
                     print(f'La partida con id "{msg_json.get("ID_GAME")}" ya existe')
                     msg_response = {
                         "TYPE":"RESPONSE",
                         "MESSAGE":"ERROR"
                         }
                 else:
-                    self.games[msg_json.get("ID_GAME")]=['','']
+                    self.games[msg_json.get("ID_GAME")]=[]#Se crea vacio y luego en join se rellena
                     print(f'La partida con id "{msg_json.get("ID_GAME")}" ha sido creada.Esperando a que se unan los jugadores')
                     
                     msg_response = {
@@ -184,69 +189,69 @@ class Servidor:
                 await writer.drain()
             elif(msg_type=="JOIN_GAME"):
                 #Comprobamos que en esta conexion hay un user conectado
-                if user !="":
-                    #comprobamos que se esta intentado unir a una partida ya creada
-                    if(msg_json.get("ID_GAME") in self.games.keys):
-                        #Comprobamos que no haya alguien unido a la partida
-                        if(self.games.get(msg_json.get("ID_GAME"))[0]=="" ):
-                            self.games.get(msg_json.get("ID_GAME"))[0]=user
-                            print(f'El jugador {user} se ha conectado a la partida {msg_json.get("ID_GAME")}')
-                            print(f'Esperando al segundo jugador')
-                            msg_response = {
-                                "TYPE":"RESPONSE",
-                                "MESSAGE":"OK"
-                                }
-                        #Comprobamos si la partida no tiene ya 2 jugadores
-                        elif(self.games.get(msg_json.get("ID_GAME"))[1]==""):
-                            #Comprobamos si el primer jugador sigue conectado
-                            if (self.games.get(msg_json.get("ID_GAME"))[0] in self.users_connections.keys):
-                                self.games.get(msg_json.get("ID_GAME"))[1]=user
-                                print(f'El jugador {user} se ha conectado a la partida {msg_json.get("ID_GAME")}')
-                                print(f'La partida comenzara en breve')
-                                '''
-                                Aqui se creara el servidor de Game
-                                Se le pasara las direcciones de ambos jugadores para que se pueda avisar a los jugadores
-
-                                '''
-
-                                msg_response = {
-                                    "TYPE":"RESPONSE",
-                                    "MESSAGE":"OK"
-                                    }
-                            #El primer usuario ya no esta conectado
-                            else:
-                                print(f'ERROR: El jugador {self.games.get(msg_json.get("ID_GAME"))[0]} ya no esta conectado')
-                                msg_response = {
-                                    "TYPE":"RESPONSE",
-                                    "MESSAGE":"ERROR"
-                                    }
-                        #La partida esta completa
-                        else:
-                            print(f'ERROR: La partida ya tiene 2 jugadores')
-                            msg_response = {
-                                "TYPE":"RESPONSE",
-                                "MESSAGE":"ERROR"
-                                }
-                    #No existe la partida
-                    else:
-                        print(f'ERROR: No existe la partida con id:{msg_json.get("ID_GAME")}')
-                        msg_response = {
-                            "TYPE":"RESPONSE",
-                            "MESSAGE":"ERROR"
-                            }
-                else:
+                if user =="":
                     print(f'ERROR: Se esta intentando unir a una partida sin estar logueado')
                     msg_response = {
                         "TYPE":"RESPONSE",
                         "MESSAGE":"ERROR"
                         }
+                #Comprobamos que no esta en otra partida(desde esta conexion)
+                if id_game_user != "":
+                    print(f'ERROR: El jugador ya esta unido a otra partida')
+                    msg_response = {
+                        "TYPE":"RESPONSE",
+                        "MESSAGE":"ERROR"
+                        }
+                #comprobamos que se esta intentado unir a una partida ya creada
+                elif(msg_json.get("ID_GAME") not in self.games.keys()):
+                    #No existe la partida
+                    print(f'ERROR: No existe la partida con id:{msg_json.get("ID_GAME")}')
+                    msg_response = {
+                        "TYPE":"RESPONSE",
+                        "MESSAGE":"ERROR"
+                        }
+
+                #Se comprueba que no hay mas de un jugador esperando la partida
+                elif(len(self.games.get(msg_json.get("ID_GAME")))>1):
+                    print(f'ERROR: La partida {msg_json.get("ID_GAME")} ya esta llena')
+                    msg_response = {
+                        "TYPE":"RESPONSE",
+                        "MESSAGE":"ERROR"
+                        }
+                #Caso de exito
+                else:
+                    id_game_user = msg_json.get("ID_GAME") #Registramos en esta conexion el id del game
+                    self.games.get(id_game_user).append((user,msg_json.get("ADDR"))) #Registramos el user y addr donde los jugadores esperan a GAME
+                    print(f'El jugador {user} se ha conectado a la partida {id_game_user}')
+
+                    if(len(self.games.get(id_game_user))==1):
+                        print(f'Esperando al segundo jugador')
+                    else:
+                        print(f'La partida {id_game_user} comenzara en breve')
+                        '''
+                        Aqui se creara el servidor de Game
+                        Se le pasara las direcciones de ambos jugadores para que se pueda avisar a los jugadores
+
+                        '''
+                    msg_response = {
+                        "TYPE":"RESPONSE",
+                        "MESSAGE":"OK"
+                        }
+                    
                 writer.write(json.dumps(msg_response).encode())
                 await writer.drain()
             elif(msg_type=="RESULT"):
+
+                #Buscar una manera de garantizar que solo los servidores GAME pueda realizar la llamda
+
                 #comprobamos que existe la partida
                 if(msg_json.get("ID_GAME") in self.games.keys):
-                    #De momento he considerado que el gamer1 es el que gana
-                    print(f'La partida con id {msg_json.get("ID_GAME")} ha terminado con el jugador {msg_json.get("GAMER1")}ganando')
+                    if(msg_json.get("RESULT"))=="EMPATE":
+                        print(f'La partida con id {msg_json.get("ID_GAME")} ha terminado en empate')
+                    elif (msg_json.get("RESULT")=="ANULADA") :
+                        print(f'La partida con id {msg_json.get("ID_GAME")} ha sido anulada')
+                    else:
+                        print(f'La partida con id {msg_json.get("ID_GAME")} ha terminado con el jugador {msg_json.get("RESULT")} ganando')
                     
                     msg_response = {
                             "TYPE":"RESPONSE",
