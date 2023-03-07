@@ -133,14 +133,15 @@ class Servidor:
                     value = self.users_connections.pop(msg_json.get("USER"),None)
                     if(value !=None):
                         self.users_connections[msg_json.get("USER")] = addr
-                        user = ""
-                        print(f'Log out del usuario : {msg_json.get("USER")}')
                         #Se busca si el jugador estaba esperando en alguna partida
-                        #No se eliminan las partidas donde ya habia 2 jugadores porque se entienden que ya estan en curso
-                        result = filter(lambda x: x[0]==user,self.games.items)
+                        #No se eliminan las partidas donde ya habia 2 jugadores porque se entienden que ya estan en curso                        
+                        result = filter(lambda x: x[1][0]==user,self.games.items())
                         #Se eliminan las partidas del jugador
                         for game in result:
-                            self.games.pop(game)
+                            self.games.pop(game[0])
+                            print(f'Eliminado juego:{game}')
+                        user = ""
+                        print(f'Log out del usuario : {msg_json.get("USER")}')
 
                         msg_response = {
                             "TYPE":"RESPONSE",

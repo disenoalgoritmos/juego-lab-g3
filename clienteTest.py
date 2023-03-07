@@ -34,9 +34,61 @@ async def tcp_echo_client(message):
     writer.write(message.encode())
     await writer.drain()
 
+
+    #Log in
+    msg_Login = {
+        "TYPE":"LOGIN",
+        "USER":"Nacho",
+        "PASSWORD":"mipass2"
+        }
+    message = json.dumps(msg_Login)
+    print(f'Send: {message!r}')
+    writer.write(message.encode())
+    await writer.drain()
+
+    data = await reader.read(100)
+    print(f'Received: {data.decode()!r}')
+    
+    #new game
+    msg_New_Game = {
+        "TYPE":"NEW_GAME",
+        "ID_GAME":"NachoGame"
+        }
+    message = json.dumps(msg_New_Game)
+    print(f'Send: {message!r}')
+    writer.write(message.encode())
+    await writer.drain()
+
     data = await reader.read(100)
     print(f'Received: {data.decode()!r}')
 
+    #new game2
+    msg_New_Game = {
+        "TYPE":"NEW_GAME",
+        "ID_GAME":"NachoGame2"
+        }
+    message = json.dumps(msg_New_Game)
+    print(f'Send: {message!r}')
+    writer.write(message.encode())
+    await writer.drain()
+
+    data = await reader.read(100)
+    print(f'Received: {data.decode()!r}')
+
+    #Log out
+    msg_Log_Out = {
+        "TYPE":"LOG_OUT",
+        "USER":"Nacho",
+        "PASSWORD":"mipass2"
+        }
+    message = json.dumps(msg_Log_Out)
+    print(f'Send: {message!r}')
+    writer.write(message.encode())
+    await writer.drain()
+
+    data = await reader.read(100)
+    print(f'Received: {data.decode()!r}')
+    
     #Eliminacion usuario
     msg_Delete_user = {
         "TYPE":"DELETE",
@@ -53,9 +105,9 @@ async def tcp_echo_client(message):
 
 
 
+    time.sleep(10)#Como es un ejemplo automatico se termina muy pronto, asique le he dado unos segundos para poder verlo antes de terminarlo
     print('Close the connection')
     writer.close()
-    time.sleep(10)#Como es un ejemplo automatico se termina muy pronto, asique le he dado unos segundos para poder verlo antes de terminarlo
     await writer.wait_closed()
 
 if __name__ == "__main__": 
