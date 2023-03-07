@@ -18,7 +18,7 @@ async def tcp_echo_client(message):
     writer.write(message.encode())
     await writer.drain()
 
-    data = await reader.read(100)
+    data = await reader.read(1024)
     print(f'Received: {data.decode()!r}')
 
     #Modificacion usuario
@@ -34,7 +34,7 @@ async def tcp_echo_client(message):
     writer.write(message.encode())
 
     await writer.drain()
-    data = await reader.read(100)
+    data = await reader.read(1024)
     print(f'Received: {data.decode()!r}')
 
 
@@ -49,7 +49,7 @@ async def tcp_echo_client(message):
     writer.write(message.encode())
     await writer.drain()
 
-    data = await reader.read(100)
+    data = await reader.read(1024)
     print(f'Received: {data.decode()!r}')
     
     #new game
@@ -62,7 +62,7 @@ async def tcp_echo_client(message):
     writer.write(message.encode())
     await writer.drain()
 
-    data = await reader.read(100)
+    data = await reader.read(1024)
     print(f'Received: {data.decode()!r}')
 
 
@@ -77,7 +77,7 @@ async def tcp_echo_client(message):
     writer.write(message.encode())
     await writer.drain()
 
-    data = await reader.read(100)
+    data = await reader.read(1024)
     print(f'Received: {data.decode()!r}')
 
 
@@ -92,8 +92,21 @@ async def tcp_echo_client(message):
     writer.write(message.encode())
     await writer.drain()
 
-    data = await reader.read(100)
+    data = await reader.read(1024)
     print(f'Received: {data.decode()!r}')
+
+    #Search game
+    msg_Search_Game = {
+        "TYPE":"SEARCH_GAME"
+        }
+    message = json.dumps(msg_Search_Game)
+    print(f'Send: {message!r}')
+    writer.write(message.encode())
+    await writer.drain()
+
+    data = await reader.read(1024)
+    print(f'Received: {data.decode()!r}')
+
 
     #join game2 Esta llamada deberia dar error, no puedes unirte a 2 partidas desde la misma conexion
     msg_Join_Game = {
@@ -106,7 +119,7 @@ async def tcp_echo_client(message):
     writer.write(message.encode())
     await writer.drain()
 
-    data = await reader.read(100)
+    data = await reader.read(1024)
     print(f'Received: {data.decode()!r}')
 
     #Log out
@@ -120,7 +133,19 @@ async def tcp_echo_client(message):
     writer.write(message.encode())
     await writer.drain()
 
-    data = await reader.read(100)
+    data = await reader.read(1024)
+    print(f'Received: {data.decode()!r}')
+
+    #Search game 2. Se deberia haber eliminado la partida donde el usuario se ha conectado
+    msg_Search_Game = {
+        "TYPE":"SEARCH_GAME"
+        }
+    message = json.dumps(msg_Search_Game)
+    print(f'Send: {message!r}')
+    writer.write(message.encode())
+    await writer.drain()
+
+    data = await reader.read(1024)
     print(f'Received: {data.decode()!r}')
     
     #Eliminacion usuario
@@ -134,7 +159,7 @@ async def tcp_echo_client(message):
     writer.write(message.encode())
     await writer.drain()
 
-    data = await reader.read(100)
+    data = await reader.read(1024)
     print(f'Received: {data.decode()!r}')
 
 

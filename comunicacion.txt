@@ -17,7 +17,7 @@ C---->S {type:NEW_GAME,ID_GAME:nombre juego}
 
 El cliente pide al servidor una lista de games disponibles para unirse
 C---->S {type:SEARCH_GAME}
-    S---->C {type:Response, MESSAGE: 'diccionario con clave el id del game y como valor el par ip/puerto'}    #games puede ser vacio si no encuentra nada
+    S---->C {type:Response, MESSAGE: 'lista de ids de los games disponibles para unirse'}    #games puede ser vacio si no encuentra nada
 
 
 Version 2 Los clientes le pasan al servidor la direccion en la que esperaran al servidor GAME. El servidor se las pasara a GAME en su momento de creacion

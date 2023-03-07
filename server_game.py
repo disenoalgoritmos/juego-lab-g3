@@ -240,6 +240,21 @@ class Servidor:
                     
                 writer.write(json.dumps(msg_response).encode())
                 await writer.drain()
+
+            elif(msg_type=="SEARCH_GAME"):
+                #filtra las partidas donde falten jugadores
+                game_filter = filter(lambda x: len(x[1])<=1 ,self.games.items())
+                game_list = []
+                for g in game_filter:
+                    game_list.append(g[0])
+                msg_response = {
+                        "TYPE":"RESPONSE",
+                        "MESSAGE":game_list
+                        }
+                    
+                writer.write(json.dumps(msg_response).encode())
+                await writer.drain()
+
             elif(msg_type=="RESULT"):
 
                 #Buscar una manera de garantizar que solo los servidores GAME pueda realizar la llamda
