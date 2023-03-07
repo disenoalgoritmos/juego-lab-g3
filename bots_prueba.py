@@ -166,7 +166,7 @@ class Molino():
                 or self.movimiento_igual_anillo(casilla,-1) in state.get('FREE')
                 or len(self.comprueba_movimiento_entre_anillos(state,casilla)) > 0):
                 casillas_mover.append(casilla)
-        casillas_mover.sort() #############################################
+        #casillas_mover.sort() #############################################
         return casillas_mover
 
     def obtiene_casillas_libres_movimiento(self, state, posicion_elegida):
