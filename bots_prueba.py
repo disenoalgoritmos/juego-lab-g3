@@ -317,6 +317,7 @@ class Molino():
                 print("\n-----------------------------------------------------------------------------------------------------------------------------\n")    
                 return True
 
+
     def crea_sucesores(self, turno, state):
 
         lista_sucesores = []
@@ -367,12 +368,12 @@ class Molino():
         else:
 
             if self.state_enviado != None and not self.valida_estado_inicial_rival(self.state_enviado,sucesor_rival) and not self.valida_jugada(sucesor_rival): 
-                return  "Acción incorrecta"
+                return  "Acción incorrecta",None
             elif self.state_enviado == None and not self.valida_jugada(sucesor_rival): #aunque no puedas comparar con tu anterior jugada porque estés en el segundo turno, al menos compruebas que la acción sea correcta
-                return "Acción incorrecta"
+                return "Acción incorrecta",None
             
             if self.comprueba_condiciones_derrota(sucesor_rival.get("NEXT_STATE")):
-                return "Derrota"
+                return "Derrota",None
             
             print("\n-----------------------------------------------------------------------------------------------------------------------------\n")
             print("<<< Turno del jugador " + str(sucesor_rival.get("NEXT_STATE").get('TURN')+1) + " >>>\n")
@@ -383,8 +384,12 @@ class Molino():
             eleccion_sucesor = self.pide_opcion_valida(list(range(1,len(lista_sucesores)+1))) -1  # LUEGO NO HARÍA FALTA PEDIR UN NÚMERO CORRECTO
             sucesor_generado = lista_sucesores[eleccion_sucesor] ###################################
             self.state_enviado =  sucesor_generado.get("NEXT_STATE")
+            
+            if self.comprueba_condiciones_derrota(self.state_enviado): #el estado al que llegaremos nos hace ganar
+                return "Victoria",sucesor_generado
+
         
-        return sucesor_generado
+        return "Acción normal",sucesor_generado
         
     def devuelve_mensaje_RESPONSE(self, message):
         msg = {
@@ -392,7 +397,7 @@ class Molino():
             "MESSAGE":message
         }
         return msg
-
+'''
 if __name__ == "__main__":
 
     molino1 = Molino()
@@ -410,3 +415,4 @@ if __name__ == "__main__":
             if sucesor_2=="Derrota" or sucesor_2=="Acción incorrecta":
                 print(molino2.devuelve_mensaje_RESPONSE("ERROR"))
                 seguir = False
+'''
