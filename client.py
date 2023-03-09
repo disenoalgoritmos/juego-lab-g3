@@ -74,10 +74,18 @@ class Client:
                 exit()
             else:
                 print("\nOpción inválida, opción no disponible")
-                self.menu()
+                message = await self.menu()
+                self.writer.write(json.dumps(message).encode())
+                await self.writer.drain()
+
+                await self.comprobeResponse(message)
         else:
             print("\nOpción inválida, introduzca un número")
-            self.menu()
+            message = await self.menu()
+            self.writer.write(json.dumps(message).encode())
+            await self.writer.drain()
+
+            await self.comprobeResponse(message)
 
     def login(self):
         username = input("\nIngrese su nombre de usuario: ")
@@ -148,10 +156,16 @@ class Client:
                 await self.comprobeResponse(message)
             else:
                 print("Opción inválida, opción no disponible")
-                self.menu2()
+                message = await self.menu2()
+                self.writer.write(json.dumps(message).encode())
+                await self.writer.drain()
+                await self.comprobeResponse2(message)
         else:
             print("Opción inválida, introduzca un número")
-            self.menu2()
+            message = await self.menu2()
+            self.writer.write(json.dumps(message).encode())
+            await self.writer.drain()
+            await self.comprobeResponse2(message)
 
     def modifyUser(self):
         new_password = input("\nIngrese su nueva contraseña: ")
@@ -170,7 +184,6 @@ class Client:
             self.password = message['NEW_PASSWORD']
             self.new_password = ""
             message = await self.menu2()
-            print(message)
             self.writer.write(json.dumps(message).encode())
             await self.writer.drain()
             await self.comprobeResponse2(message)
