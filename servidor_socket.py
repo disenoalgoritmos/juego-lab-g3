@@ -4,11 +4,11 @@ import socket
 
 class Game_Server():
 
-    def __init__(self):
+    def __init__(self): #MODULARIZAR
         
         # Configuración del servidor
         self.host = 'localhost'
-        self.port = 12348
+        self.port = 12349
         self.backlog = 2
 
         # Crear un socket para el servidor
@@ -76,6 +76,7 @@ class Game_Server():
 
         #SE ENVÍA AL SERVIDOR CENTRAL EL GANADOR DE LA PARTIDA (O NONE SI AMBOS PIERDEN)
         ##########################################################################
+        print("EL GANADOR DE LA PARTIDA ES ", self.ganador)
 
         self.server_socket.close()
 

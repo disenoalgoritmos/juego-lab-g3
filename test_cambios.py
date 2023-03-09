@@ -388,8 +388,8 @@ class Molino():
             if self.comprueba_condiciones_derrota(self.sucesor_enviado.get('NEXT_STATE')): #el estado al que llegaremos nos hace ganar
                 return "Victoria",sucesor_generado
         
-        # ESTO ES PARA PROBAR LO DE ENVIAR SUCESORES ERRÓNEOS
-        #sucesor_generado.get('NEXT_STATE').get('GAMER')[sucesor_generado.get('STATE').get('TURN')] = []
+        
+        sucesor_generado.get('NEXT_STATE').get('GAMER')[sucesor_generado.get('STATE').get('TURN')] = []
 
         return "Acción normal",sucesor_generado
         
