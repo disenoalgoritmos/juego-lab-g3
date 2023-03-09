@@ -18,20 +18,6 @@ class Client:
         self.reader, self.writer = await asyncio.open_connection(
         '127.0.0.1', 8888)
 
-        message = await self.menu()
-
-        self.writer.write(json.dumps(message).encode())
-        await self.writer.drain()
-
-        await self.comprobeResponse(message)
-
-    async def run2(self):
-        message = await self.menu2()
-        self.writer.write(json.dumps(message).encode())
-        await self.writer.drain()
-        await self.comprobeResponse2(message)
-
-    async def menu(self):
         print(  "  _______     _____  _____ \n"+
                 " |__   __|   |  ___|/  _  \ \n"+
                 "    | |_    _| |_  |  (_)  |___\n"+
@@ -53,6 +39,21 @@ class Client:
                 "| | \__/ | |/ _ \| | |  __  |/ _ \  \n"+
                 "| |      | | (_) | | | |  | | (_)    \n"+
                 "|_|      |_|\___/|_|_|_|  |_|\___/   ")
+
+        message = await self.menu()
+
+        self.writer.write(json.dumps(message).encode())
+        await self.writer.drain()
+
+        await self.comprobeResponse(message)
+
+    async def run2(self):
+        message = await self.menu2()
+        self.writer.write(json.dumps(message).encode())
+        await self.writer.drain()
+        await self.comprobeResponse2(message)
+
+    async def menu(self):
         print("\nSeleccione una opción: ")
         print("1. Iniciar sesión")
         print("2. Registrarme como nuevo usuario")
@@ -114,7 +115,7 @@ class Client:
             await self.comprobeResponse2(message)
         elif message['TYPE'] == "LOGIN" and response['MESSAGE'] == "ERROR":
             print("\nUsuario o contraseña incorrectos. Intente de nuevo")
-            message = self.menu()
+            message = await self.menu()
             self.writer.write(json.dumps(message).encode())
             await self.writer.drain()
             await self.comprobeResponse(message)
@@ -183,7 +184,7 @@ class Client:
             print("\nUsuario eliminado correctamente")
             self.user = ""
             self.password = ""
-            message = self.menu()
+            message = await self.menu()
             self.writer.write(json.dumps(message).encode())
             await self.writer.drain()
             await self.comprobeResponse(message)
