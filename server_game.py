@@ -14,11 +14,67 @@ class Servidor:
 
         self.nombre_archivo,self.candado_archivo_texto = self.inicializaBBDD("credenciales.txt")
 
+    async def handle_server_game(self,reader,writer):
+        addr = writer.get_extra_info('peername')
+        print(f'Conexion con el server GAME en {addr}')
+
+        while not writer.is_closing():#Mientras el servidor no corte la conexion
+
+            data = await reader.read(1024)#cambiar a readline?
+            msg = data.decode()
+            if msg =='':
+                #El servidor GAME ha cortado la conexion
+                print(f'La conexion con servidor GAME {addr} se ha cortado')
+                break
+            print(f"Received: {msg!r} from server GAME {addr!r}")
+            #Intentamos leer el json   
+            try:
+                msg_json = json.loads(msg)
+            except:
+                print(f"No se ha podido leer el json recibido")
+                msg_response = {
+                    "TYPE":"RESPONSE",
+                    "MESSAGE":"ERROR"
+                    }
+                writer.write(json.dumps(msg_response).encode())
+                await writer.drain()
+                continue
+
+            #Falta controlar las excepciones que se pueden producir si en el json recibido no tiene las claves correctas como TYPE o USER
+            msg_type = msg_json.get("TYPE")
+            if(msg_type=="RESULT"):                
+
+                #comprobamos que existe la partida
+                if(msg_json.get("ID_GAME") in self.games.keys):
+                    if(msg_json.get("RESULT"))=="EMPATE":
+                        print(f'La partida con id {msg_json.get("ID_GAME")} ha terminado en empate')
+                    elif (msg_json.get("RESULT")=="ANULADA") :
+                        print(f'La partida con id {msg_json.get("ID_GAME")} ha sido anulada')
+                    else:
+                        print(f'La partida con id {msg_json.get("ID_GAME")} ha terminado con el jugador {msg_json.get("RESULT")} ganando')
+                    
+                    msg_response = {
+                            "TYPE":"RESPONSE",
+                            "MESSAGE":"OK"
+                            }
+                else:
+                    print(f'ERROR: La partida con id {msg_json.get("ID_GAME")} no existe')
+
+                    msg_response = {
+                            "TYPE":"RESPONSE",
+                            "MESSAGE":"ERROR"
+                            }
+                writer.write(json.dumps(msg_response).encode())
+                await writer.drain()
+
+
 
     async def handle_server(self,reader,writer):
         addr = writer.get_extra_info('peername')#Direccion del usuario que se ha conectado
         user = "" #Nombre del usuario que esta logueado y asignado a esta conexion
         id_game_user='' #Indica el id del game en el que esta esperando o jugando el jugador
+        print(f'Conexion con un nuevo cliente en {addr}')
+
         while not writer.is_closing():#Mientras el servidor no corte la conexion
 
             data = await reader.read(1024)#cambiar a readline?
@@ -145,11 +201,17 @@ class Servidor:
 
                     #Se comprueba si la conexion tiene asignada una partida
                     #Se comprueba si el jugador esta solo en dicha partida
-                    #No se eliminan las partidas donde ya habia 2 jugadores porque se entienden que ya estan en curso                        
+                    #No se eliminan las partidas donde ya habia 2 jugadores porque se entienden que ya estan en curso 
+                    '''  No tengo forma de decirle al cliente que cierre una partida en espera, asique mantenemos 
+                    las partidas.Tampoco tengo forma de saber si el jugador sigue en espera o se ha marchado ya que
+                    el log out ya no significa que el jugador de ha ido porque ahora hay varias conexiones quepuden 
+                    tener el mismo user
+
                     if id_game_user != "" and len(self.games.get(id_game_user)) ==1:
                         self.games.pop(id_game_user)
                         print(f'Eliminado juego:{id_game_user}')
                         id_game_user =''
+                    '''
                     user = ""
                     print(f'Log out del usuario : {msg_json.get("USER")}')
 
@@ -196,12 +258,14 @@ class Servidor:
                         "MESSAGE":"ERROR"
                         }
                 #Comprobamos que no esta en otra partida(desde esta conexion)
+                    '''Como desde el cliente se puede lanzar varias partidas ya no tiene sentido comprobar esto
                 if id_game_user != "":
                     print(f'ERROR: El jugador ya esta unido a otra partida')
                     msg_response = {
                         "TYPE":"RESPONSE",
                         "MESSAGE":"ERROR"
                         }
+                    '''
                 #comprobamos que se esta intentado unir a una partida ya creada
                 elif(msg_json.get("ID_GAME") not in self.games.keys()):
                     #No existe la partida
@@ -231,6 +295,7 @@ class Servidor:
                         '''
                         Aqui se creara el servidor de Game
                         Se le pasara las direcciones de ambos jugadores para que se pueda avisar a los jugadores
+                        Tambien se le pasara la direccion del servidor exclusivo de game para obtener los resultados
 
                         '''
                     msg_response = {
@@ -255,32 +320,7 @@ class Servidor:
                 writer.write(json.dumps(msg_response).encode())
                 await writer.drain()
 
-            elif(msg_type=="RESULT"):
-
-                #Buscar una manera de garantizar que solo los servidores GAME pueda realizar la llamda
-
-                #comprobamos que existe la partida
-                if(msg_json.get("ID_GAME") in self.games.keys):
-                    if(msg_json.get("RESULT"))=="EMPATE":
-                        print(f'La partida con id {msg_json.get("ID_GAME")} ha terminado en empate')
-                    elif (msg_json.get("RESULT")=="ANULADA") :
-                        print(f'La partida con id {msg_json.get("ID_GAME")} ha sido anulada')
-                    else:
-                        print(f'La partida con id {msg_json.get("ID_GAME")} ha terminado con el jugador {msg_json.get("RESULT")} ganando')
-                    
-                    msg_response = {
-                            "TYPE":"RESPONSE",
-                            "MESSAGE":"OK"
-                            }
-                else:
-                    print(f'ERROR: La partida con id {msg_json.get("ID_GAME")} no existe')
-
-                    msg_response = {
-                            "TYPE":"RESPONSE",
-                            "MESSAGE":"ERROR"
-                            }
-                writer.write(json.dumps(msg_response).encode())
-                await writer.drain()
+            
 
 
     def inicializaBBDD(self, nombre_archivo):
@@ -406,32 +446,29 @@ class Servidor:
             print(f"Modificadas las credenciales de: {user}\n")
 
 
-async def handle_echo(reader, writer):
-    data = await reader.read(100)
-    message = data.decode()
-    addr = writer.get_extra_info('peername')
 
-    print(f"Received {message!r} from {addr!r}")
-
-    print(f"Send: {message!r}")
-    writer.write(data)
-    await writer.drain()
-
-    print("Close the connection")
-    writer.close()
-    await writer.wait_closed()
 
 async def main():
     servidor = Servidor() 
     server_asyncio = await asyncio.start_server(
         servidor.handle_server, '127.0.0.1', 8888)
+    
+    #Servidor exclusivo para game que escucha los resultados de las partidas
+    server_game_asyncio = await asyncio.start_server(
+        servidor.handle_server_game, '127.0.0.1', 8889)
+    #Tambien podria crear el server_game a la vez que creo el proceso del servidor GAME
+    #Y que cada GAME tenga su propio server_game_asyncio 
 
     addrs = ', '.join(str(sock.getsockname()) for sock in server_asyncio.sockets)
     print(f'Serving on {addrs}')
+    addrs = ', '.join(str(sock.getsockname()) for sock in server_game_asyncio.sockets)
+    print(f'Serving on {addrs} for GAME')
 
     async with server_asyncio:
-        subprocess.Popen("python .\clienteTest.py Argumento1 Argumento2",creationflags =subprocess.CREATE_NEW_CONSOLE)#Para pruebas con clienteTest 
+        async with server_game_asyncio:
+            subprocess.Popen("python .\clienteTest.py Argumento1 Argumento2",creationflags =subprocess.CREATE_NEW_CONSOLE)#Para pruebas con clienteTest 
             #y como ejemplo de ejecutar un proceso en segundo plano.Argumento1 y 2 no hacen nada, solo es un ejemplo de como lo pasare
+            await server_game_asyncio.serve_forever()        
         await server_asyncio.serve_forever()
 
 asyncio.run(main())

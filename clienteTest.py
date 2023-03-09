@@ -5,6 +5,8 @@ import sys
 async def tcp_echo_client(message):
     reader, writer = await asyncio.open_connection(
         '127.0.0.1', 8888)
+    readerG, writerG = await asyncio.open_connection(
+        '127.0.0.1', 8889)
     
     #Nuevo usuario
 
@@ -161,6 +163,9 @@ async def tcp_echo_client(message):
 
     data = await reader.read(1024)
     print(f'Received: {data.decode()!r}')
+
+    #Prueba paso mensaje a servidor exclusivo para GAME
+    writerG.write("Hola Servidor, soy un servidor Game".encode())
 
 
 
