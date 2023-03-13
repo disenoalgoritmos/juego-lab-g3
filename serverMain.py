@@ -303,7 +303,7 @@ class Servidor:
                         addrJugador2=game[1][1]
                         addrServer = ["127.0.0.1","8889"] 
 
-                        subprocess.Popen(["python",".\servidorGAME_socket.py",json.dumps(addrJugador1),json.dumps(addrJugador2),json.dumps(addrServer)],creationflags =subprocess.CREATE_NEW_CONSOLE)#Para pruebas con clienteTest 
+                        subprocess.Popen(["python",".\servidorGAME_socket.py",addrJugador1[0],addrJugador1[1],addrJugador2[0],addrJugador2[1],addrServer[0],addrServer[1]],creationflags =subprocess.CREATE_NEW_CONSOLE)#Para pruebas con clienteTest 
 
                     msg_response = {
                         "TYPE":"RESPONSE",
