@@ -269,7 +269,7 @@ class Client:
         elif message['TYPE'] == "JOIN_GAME" and response['MESSAGE'] == "OK":
             print("\nPartida unida correctamente")
             argumentos = [str(message.get('ADDR')[0]), str(message.get('ADDR')[1])]
-            comando = ["python", ".\clienteSocket.py"] + argumentos
+            comando = ["python", ".\clienteGAME_socket.py"] + argumentos
             subprocess.Popen(comando, creationflags =subprocess.CREATE_NEW_CONSOLE)
             # Unirse a una partida
             message = await self.menu2()

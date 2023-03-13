@@ -2,6 +2,7 @@
 import json
 import socket
 import bots_prueba
+import sys
 
 class Game_Client():
 
@@ -12,8 +13,8 @@ class Game_Client():
         #######################################################################
 
         # Configuración del cliente
-        self.host = 'localhost'
-        self.port = 12349
+        self.host = argv[1]
+        self.port = int(argv[2])
         self.primer_jugador = None
         self.sucesor_rival = None
         self.anterior_sucesor_rival = None
@@ -128,4 +129,4 @@ class Game_Client():
         self.bucle_partida()
         self.cierra_conexion()
 
-cliente = Game_Client()
+cliente = Game_Client(sys.argv)
