@@ -6,7 +6,7 @@ import sys
 
 class Game_Client():
 
-    def __init__(self):
+    def __init__(self, argv):
 
         #######################################################################
         ### VARIABLES NECESARIAS AL INICIAR EL PROGRAMA
