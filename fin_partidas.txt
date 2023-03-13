@@ -2,7 +2,7 @@ ALGORITMO FINALIZAR PARTIDAS
 
 
 - Cuando aparezca un mensaje FINISH, si el oponente vuelve a responder con otro, se termina la partida resultado ganador el primer jugador 
-que madó uno de ellos.
+que mandó uno de ellos.
 
 - Cuando aparezca un mensaje ERROR, si el oponente vuelve a mandar el mismo sucesor (hay que tenerlo almacenado por si acaso), se termina la 
 partida resultando ambos jugadores perdedores. ESTO POR AHORA NO ESTÁ IMPLEMENTADO
