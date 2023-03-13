@@ -17,8 +17,8 @@ class Game_Server():
 
         #Lista con las direcciones de los dos jugadores
         self.gamers = []
-        self.gamers[0] = (self.ip_j1,self.port_j1)
-        self.gamers[1] = (self.ip_j2,self.port_j2)
+        self.gamers.append((self.ip_j1,self.port_j1))
+        self.gamers.append((self.ip_j2,self.port_j2))
 
 
         # Crear un socket para el servidor central y otro para cada jugador
