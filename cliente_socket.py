@@ -1,19 +1,19 @@
-
 import json
 import socket
 import bots_prueba
+import sys
 
 class Game_Client():
 
-    def __init__(self):
+    def __init__(self, argv):
 
         #######################################################################
         ### VARIABLES NECESARIAS AL INICIAR EL PROGRAMA
         #######################################################################
 
         # Configuración del cliente
-        self.host = 'localhost'
-        self.port = 12349
+        self.host = argv[1]
+        self.port = int(argv[2])
         self.primer_jugador = None
         self.sucesor_rival = None
         self.anterior_sucesor_rival = None
@@ -25,7 +25,9 @@ class Game_Client():
         #######################################################################
         ### CONEXIÓN CON EL SERVIDOR DE JUEGO
         #######################################################################
-        self.client_socket.connect((self.host, self.port))
+        self.client_socket.bind((self.host, self.port))
+        self.client_socket.listen()
+        self.client_socket, address = self.client_socket.accept()
 
         #######################################################################
         ### CREACIÓN DE LA CLASE MOLINO PARA CREAR ACCIONES
@@ -128,4 +130,4 @@ class Game_Client():
         self.bucle_partida()
         self.cierra_conexion()
 
-cliente = Game_Client()
+cliente = Game_Client(sys.argv)
