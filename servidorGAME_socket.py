@@ -1,36 +1,42 @@
 import json
 import random
 import socket
+import sys
 
 class Game_Server():
 
     def __init__(self): #MODULARIZAR
         
         # Configuración del servidor
-        self.host = 'localhost'
-        self.port = 12349
-        self.backlog = 2
-
-        # Crear un socket para el servidor
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        # Enlazar el socket al host y puerto especificados
-        self.server_socket.bind((self.host, self.port))
-
-        # Escuchar conexiones entrantes
-        self.server_socket.listen(self.backlog)
+        self.ip_j1 = sys.argv[1]
+        self.port_j1 = int(sys.argv[2])
+        self.ip_j2 = sys.argv[3]
+        self.port_j2 = int(sys.argv[4])
+        self.ip_server = sys.argv[5]
+        self.port_server = int(sys.argv[6])
 
         #Lista con las direcciones de los dos jugadores
         self.gamers = []
+        self.gamers[0] = (self.ip_j1,self.port_j1)
+        self.gamers[1] = (self.ip_j2,self.port_j2)
+
+
+        # Crear un socket para el servidor central y otro para cada jugador
+        self.socket_servidor_central = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket_servidor_central.connect((self.host, self.port))
+
+        #Lista de los socket hijos creados
+        self.sockets_hijos = []
+        self.sockets_hijos[0] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sockets_hijos[1] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sockets_hijos[0].connect(self.gamers[0])
+        self.sockets_hijos[1].connect(self.gamers[1])
 
         #Tablero inicial
         self.state_inicial  = self.cargar_datos("target.json")
 
         #Jugador que empezará la partida
         self.primer_jugador = random.randint(0, 1)
-
-        #Lista de los socket hijos creados
-        self.sockets_hijos = []
 
         #Otras variables necesarias para conrtolar el final de partidas
         self.jugador_primer_finish = -1
@@ -40,11 +46,6 @@ class Game_Server():
         self.seguir_partida = True #se volverá False cuando haya que parar la partida
         self.ganador = None
 
-        print('Esperando conexiones...')
-
-        #SE OBTIENEN LAS DIRECCIONES DE LOS JUGADORES Y SE DEVUELVE EL SOCKET PARA COMUNICARSE CON ELLOS
-        for i in range(2):
-            self.sockets_hijos.append(self.atender_conexiones())
         
         #SE ENVÍA A CADA JUGADOR EL MENSAJE GAME_OK PARA QUE SEPAN QUIÉN EMPIEZA
         self.envia_recibe_GAME_OK(self.sockets_hijos[0])
@@ -75,21 +76,13 @@ class Game_Server():
         self.sockets_hijos[1].send(json.dumps(self.crea_mensaje_RESPONSE("BYE")).encode())
 
         #SE ENVÍA AL SERVIDOR CENTRAL EL GANADOR DE LA PARTIDA (O NONE SI AMBOS PIERDEN)
-        ##########################################################################
         print("EL GANADOR DE LA PARTIDA ES ", self.ganador)
+        self.socket_servidor_central.send(self.ganador.encode())
 
-        self.server_socket.close()
-
-    def atender_conexiones(self):
-
-        # Aceptar una conexión entrante
-        client_socket, address = self.server_socket.accept()
-        self.gamers.append(address)
-        
-        # Imprimir información sobre la conexión
-        print(f'Conexión establecida desde {address}')
-
-        return client_socket
+        # SE CIERRAN LOS SOCKETS CREADOS 
+        self.sockets_hijos[0].close()
+        self.sockets_hijos[1].close()
+        self.socket_servidor_central.close()
     
     def envia_recibe_GAME_OK(self, client_socket):
         
