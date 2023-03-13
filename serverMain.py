@@ -473,7 +473,7 @@ async def main():
 
     async with server_asyncio:
         async with server_game_asyncio:
-            #subprocess.Popen("python .\clienteTest.py Argumento1 Argumento2",creationflags =subprocess.CREATE_NEW_CONSOLE)#Para pruebas con clienteTest 
+            subprocess.Popen("python .\client.py",creationflags =subprocess.CREATE_NEW_CONSOLE)#Para pruebas con clienteTest 
             #y como ejemplo de ejecutar un proceso en segundo plano.Argumento1 y 2 no hacen nada, solo es un ejemplo de como lo pasare
             await server_game_asyncio.serve_forever()        
         await server_asyncio.serve_forever()

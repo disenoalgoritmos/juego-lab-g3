@@ -17,18 +17,18 @@ class Game_Server():
 
         #Lista con las direcciones de los dos jugadores
         self.gamers = []
-        self.gamers[0] = (self.ip_j1,self.port_j1)
-        self.gamers[1] = (self.ip_j2,self.port_j2)
+        self.gamers.append((self.ip_j1,self.port_j1))
+        self.gamers.append((self.ip_j2,self.port_j2))
 
 
         # Crear un socket para el servidor central y otro para cada jugador
         self.socket_servidor_central = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket_servidor_central.connect((self.host, self.port))
+        self.socket_servidor_central.connect((self.ip_server, self.port_server))
 
         #Lista de los socket hijos creados
         self.sockets_hijos = []
-        self.sockets_hijos[0] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sockets_hijos[1] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sockets_hijos.append(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+        self.sockets_hijos.append(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
         self.sockets_hijos[0].connect(self.gamers[0])
         self.sockets_hijos[1].connect(self.gamers[1])
 
