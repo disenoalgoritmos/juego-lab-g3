@@ -1,0 +1,22 @@
+
+*** These modified files were found in JOE when it aborted on Mon Mar 13 17:29:44 2023
+*** JOE was aborted by UNIX signal 1
+
+*** File '(Unnamed)'
+main6.adb
+config
+install-opencv.sh
+test_pyocr.py
+testOpenMP.c
+matmul.cpp
+main.c
+main.cpp
+install-opencv.sh
+/home/enrique/Desktop/proyecto/.git/COMMIT_EDITMSG
+/home/enrique/Desktop/Diseño_Algoritmos/juego-lab-g3/.git/MERGE_MSG
+
+*** File '* Startup Log *'
+Processing '/etc/joe/editorrc'...
+Processing '/etc/joe/ftyperc'...
+Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/editorrc
