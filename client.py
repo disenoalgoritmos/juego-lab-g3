@@ -3,11 +3,13 @@ import json
 import subprocess
 import socket
 import platform
+import random
 
 
 class Client:
 
     def __init__(self):
+        self.ip = '127.0.0.1'
         self.user = ""
         self.password = ""
         self.new_password = ""
@@ -17,7 +19,7 @@ class Client:
     
     async def run(self):
         self.reader, self.writer = await asyncio.open_connection(
-        '127.0.0.1', 8888)
+        self.ip, 8888)
 
         print(  "  _______     _____  _____ \n"+
                 " |__   __|   |  ___|/  _  \ \n"+
@@ -235,27 +237,11 @@ class Client:
                 id=input("\nSeleccione una partida:")
 
             print("\nPartida seleccionada correctamente")
-            ip=input("Introduzca la ip del servidor:")
-            puerto=input("\nIntroduzca el puerto del servidor:")
-            correcto=False
-            while correcto==False: 
-                try:
-                    # Intenta crear una conexión usando la dirección IP y el puerto proporcionados
-                    socket.inet_aton(ip)
-                    if 0 < int(puerto) < 65535:
-                        print("\nLa dirección IP y el puerto son válidos")
-                        correcto=True
-                    else:
-                        print("\nEl puerto no es válido")
-                        puerto=input("Introduzca el puerto del servidor:")
-                except socket.error:
-                    print("\nLa dirección IP no es válida")
-                    ip=input("Introduzca la ip del servidor:")
-                except ValueError:
-                    print("\nEl puerto no es válido")
-                    puerto=input("Introduzca el puerto del servidor:")
             
-            message = {"TYPE": "JOIN_GAME", "ID_GAME": id, "ADDR":[ip,puerto]}
+            puertos = range(1, 65535)
+            puerto=random.choice(puertos)
+            
+            message = {"TYPE": "JOIN_GAME", "ID_GAME": id, "ADDR":[self.ip, str(puerto)]}
             self.writer.write(json.dumps(message).encode())
             await self.writer.drain()
             await self.comprobeResponse2(message)
