@@ -16,7 +16,7 @@ class Client:
     
     async def run(self):
         self.reader, self.writer = await asyncio.open_connection(
-        '127.0.0.1', 8888)
+        '127.0.0.1', 8908)
 
         print(  "  _______     _____  _____ \n"+
                 " |__   __|   |  ___|/  _  \ \n"+
@@ -270,7 +270,7 @@ class Client:
             print("\nPartida unida correctamente")
             argumentos = [str(message.get('ADDR')[0]), str(message.get('ADDR')[1])]
             comando = ["python", ".\clienteGAME_socket.py"] + argumentos
-            subprocess.Popen(comando, creationflags =subprocess.CREATE_NEW_CONSOLE)
+            subprocess.Popen(comando, shell=True)
             # Unirse a una partida
             message = await self.menu2()
             self.writer.write(json.dumps(message).encode())

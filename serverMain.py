@@ -301,9 +301,9 @@ class Servidor:
                         game = self.games.get(id_game_user)
                         addrJugador1=game[0][1]
                         addrJugador2=game[1][1]
-                        addrServer = ["127.0.0.1","8889"] 
+                        addrServer = ["127.0.0.1","8890"] 
 
-                        subprocess.Popen(["python",".\servidorGAME_socket.py",addrJugador1[0],addrJugador1[1],addrJugador2[0],addrJugador2[1],addrServer[0],addrServer[1]],creationflags =subprocess.CREATE_NEW_CONSOLE)#Para pruebas con clienteTest 
+                        subprocess.Popen(["python",".\servidorGAME_socket.py",addrJugador1[0],addrJugador1[1],addrJugador2[0],addrJugador2[1],addrServer[0],addrServer[1]],shell=True)#Para pruebas con clienteTest 
 
                     msg_response = {
                         "TYPE":"RESPONSE",
@@ -458,11 +458,11 @@ class Servidor:
 async def main():
     servidor = Servidor() 
     server_asyncio = await asyncio.start_server(
-        servidor.handle_server, '127.0.0.1', 8888)
+        servidor.handle_server, '127.0.0.1', 8908)
     
     #Servidor exclusivo para game que escucha los resultados de las partidas
     server_game_asyncio = await asyncio.start_server(
-        servidor.handle_server_game, '127.0.0.1', 8889)
+        servidor.handle_server_game, '127.0.0.1', 8890)
     #Tambien podria crear el server_game a la vez que creo el proceso del servidor GAME
     #Y que cada GAME tenga su propio server_game_asyncio 
 
@@ -473,7 +473,7 @@ async def main():
 
     async with server_asyncio:
         async with server_game_asyncio:
-            subprocess.Popen("python .\client.py",creationflags =subprocess.CREATE_NEW_CONSOLE)#Para pruebas con clienteTest 
+            #subprocess.Popen("python .\client.py",shell=True)#Para pruebas con clienteTest 
             #y como ejemplo de ejecutar un proceso en segundo plano.Argumento1 y 2 no hacen nada, solo es un ejemplo de como lo pasare
             await server_game_asyncio.serve_forever()        
         await server_asyncio.serve_forever()
