@@ -2,6 +2,7 @@ import json
 import random
 import socket
 import sys
+import time
 
 class Game_Server():
 
@@ -29,8 +30,25 @@ class Game_Server():
         self.sockets_hijos = []
         self.sockets_hijos.append(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
         self.sockets_hijos.append(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
-        self.sockets_hijos[0].connect(self.gamers[0])
-        self.sockets_hijos[1].connect(self.gamers[1])
+        no_conectado = True
+        limit = 100
+        while no_conectado and limit >0:
+            try:
+                self.sockets_hijos[0].connect(self.gamers[0])
+                no_conectado = False
+            except socket.error:
+                print ("Connection Failed, Retrying..")
+                limit -=1
+                time.sleep(1)
+        no_conectado = True
+        while no_conectado and limit >0:
+            try:
+                self.sockets_hijos[1].connect(self.gamers[1])
+                no_conectado = False
+            except socket.error:
+                print ("Connection Failed, Retrying..")
+                limit -=1
+                time.sleep(1)
 
         #Tablero inicial
         self.state_inicial  = self.cargar_datos("target.json")

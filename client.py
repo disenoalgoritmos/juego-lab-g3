@@ -260,7 +260,7 @@ class Client:
             if(platform.system()=="Windows"):
                 subprocess.Popen(comando, creationflags =subprocess.CREATE_NEW_CONSOLE)
             else:
-                print(f"Ejecute el siguiente comando en otra terminal:{comando}")    
+                print(f"Ejecute el siguiente comando en otra terminal: python3 clienteGAME_socket.py  {str(message.get('ADDR')[0])} {str(message.get('ADDR')[1])} ")    
             # Unirse a una partida
             message = await self.menu2()
             self.writer.write(json.dumps(message).encode())
