@@ -20,7 +20,7 @@ class Client:
     
     async def run(self):
         self.reader, self.writer = await asyncio.open_connection(
-        self.ip, 8888)
+        self.ip, 8908)
 
         print(  "  _______     _____  _____ \n"+
                 " |__   __|   |  ___|/  _  \ \n"+
@@ -239,7 +239,7 @@ class Client:
 
             print("\nPartida seleccionada correctamente")
             
-            puertos = range(1, 65535)
+            puertos = range(49153, 65535)
             puerto=random.choice(puertos)
 
             correcto = False
