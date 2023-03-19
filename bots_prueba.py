@@ -1,6 +1,6 @@
 import copy
 import json
-#import random
+import random
 class Molino():
 
     def __init__(self):
@@ -354,16 +354,19 @@ class Molino():
 
         return lista_sucesores
 
-    def genera_movimiento(self,sucesor_rival):
+    def genera_movimiento(self,sucesor_rival, jugador):
 
         if sucesor_rival == None: #es el primer turno
             print("\n-----------------------------------------------------------------------------------------------------------------------------\n")
             print("<<< Turno del jugador " + str(self.state_inicial.get('TURN')) + " >>>\n")
             self.imprime_tablero(self.state_inicial) ##################################
             lista_sucesores = self.crea_sucesores(self.state_inicial.get("TURN"),self.state_inicial)
-            self.imprime_sucesores(lista_sucesores)  ##################################
-            eleccion_sucesor = self.pide_opcion_valida(list(range(1,len(lista_sucesores)+1))) -1  # LUEGO NO HARÍA FALTA PEDIR UN NÚMERO CORRECTO
-            sucesor_generado = lista_sucesores[eleccion_sucesor] ###################################
+            if int(jugador)==1:
+                self.imprime_sucesores(lista_sucesores)  ##################################
+                eleccion_sucesor = self.pide_opcion_valida(list(range(1,len(lista_sucesores)+1))) -1  # LUEGO NO HARÍA FALTA PEDIR UN NÚMERO CORRECTO
+                sucesor_generado = lista_sucesores[eleccion_sucesor] ###################################
+            elif int(jugador)==2:
+                sucesor_generado = random.choice(lista_sucesores)
             self.sucesor_enviado =  sucesor_generado
         else:
 
@@ -380,9 +383,13 @@ class Molino():
             self.imprime_tablero(sucesor_rival.get("NEXT_STATE")) ##################################
 
             lista_sucesores = self.crea_sucesores(sucesor_rival.get("NEXT_STATE").get("TURN"),sucesor_rival.get("NEXT_STATE"))
-            self.imprime_sucesores(lista_sucesores)  ##################################
-            eleccion_sucesor = self.pide_opcion_valida(list(range(1,len(lista_sucesores)+1))) -1  # LUEGO NO HARÍA FALTA PEDIR UN NÚMERO CORRECTO
-            sucesor_generado = lista_sucesores[eleccion_sucesor] ###################################
+            
+            if int(jugador)==1:
+                self.imprime_sucesores(lista_sucesores)  ##################################
+                eleccion_sucesor = self.pide_opcion_valida(list(range(1,len(lista_sucesores)+1))) -1  # LUEGO NO HARÍA FALTA PEDIR UN NÚMERO CORRECTO
+                sucesor_generado = lista_sucesores[eleccion_sucesor] ###################################
+            elif int(jugador)==2:
+                sucesor_generado = random.choice(lista_sucesores)
             self.sucesor_enviado =  sucesor_generado
             
             if self.comprueba_condiciones_derrota(self.sucesor_enviado.get('NEXT_STATE')): #el estado al que llegaremos nos hace ganar

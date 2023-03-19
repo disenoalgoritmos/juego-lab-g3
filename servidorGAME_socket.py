@@ -2,6 +2,7 @@ import json
 import random
 import socket
 import sys
+import time
 
 class Game_Server():
 
@@ -17,20 +18,37 @@ class Game_Server():
 
         #Lista con las direcciones de los dos jugadores
         self.gamers = []
-        self.gamers[0] = (self.ip_j1,self.port_j1)
-        self.gamers[1] = (self.ip_j2,self.port_j2)
+        self.gamers.append((self.ip_j1,self.port_j1))
+        self.gamers.append((self.ip_j2,self.port_j2))
 
 
         # Crear un socket para el servidor central y otro para cada jugador
         self.socket_servidor_central = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket_servidor_central.connect((self.host, self.port))
+        self.socket_servidor_central.connect((self.ip_server, self.port_server))
 
         #Lista de los socket hijos creados
         self.sockets_hijos = []
-        self.sockets_hijos[0] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sockets_hijos[1] = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sockets_hijos[0].connect(self.gamers[0])
-        self.sockets_hijos[1].connect(self.gamers[1])
+        self.sockets_hijos.append(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+        self.sockets_hijos.append(socket.socket(socket.AF_INET, socket.SOCK_STREAM))
+        no_conectado = True
+        limit = 100
+        while no_conectado and limit >0:
+            try:
+                self.sockets_hijos[0].connect(self.gamers[0])
+                no_conectado = False
+            except socket.error:
+                print ("Connection Failed, Retrying..")
+                limit -=1
+                time.sleep(1)
+        no_conectado = True
+        while no_conectado and limit >0:
+            try:
+                self.sockets_hijos[1].connect(self.gamers[1])
+                no_conectado = False
+            except socket.error:
+                print ("Connection Failed, Retrying..")
+                limit -=1
+                time.sleep(1)
 
         #Tablero inicial
         self.state_inicial  = self.cargar_datos("target.json")

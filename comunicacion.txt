@@ -1,0 +1,35 @@
+S:servidor
+C:cliente
+G:Game
+
+addr:(ip,puerto)
+
+####################
+##### MENSANGES ####
+####################
+
+El cliente pide al servidor crear un nuevo juego
+C---->S {type:NEW_GAME,ID_GAME:nombre juego}
+    S---->C{type:RESPONSE,MESSAGE:OK}     #En caso de exito el servidor crea una instancia de Game y devuelve al cliente la direccion de ese game
+        
+    
+    S---->C{type:RESPONSE,MESSAGE:ERROR}    #En caso de fallo
+
+El cliente pide al servidor una lista de games disponibles para unirse
+C---->S {type:SEARCH_GAME}
+    S---->C {type:Response, MESSAGE: 'lista de ids de los games disponibles para unirse'}    #games puede ser vacio si no encuentra nada
+
+
+Version 2 Los clientes le pasan al servidor la direccion en la que esperaran al servidor GAME. El servidor se las pasara a GAME en su momento de creacion
+Un cliente pide unirse a una partida con cierto id game
+C---->S {type:JOIN_GAME,id_game:id,addr:[ip,port]} addr es la direccion del nuevo socket que estara a la espera de GAME
+    S---->C {type:RESPONSE, MESSAGE:OK'} 
+        #Se espera al segundo jugador y se crea el servidor GAME pasandole como argumentos al crearlo las direcciones de los jugadores(y quizas del servidor) 
+        G---->C {Type:GAME_OK,Turn:turno}   #En el diagrama devuelve id_game y state, pero lo veo inecesario.Turno puede ser 0 o 1 segun el turno del jugador
+            C---->G {Type:Response,MESSAGE:OK}  #Aqui Game deberia esperar a recibir los ok de ambos jugadores
+            #Aqui el jugador con el turno 0 enviaria un mensage MOVE y empezaria el bucle
+
+            G---->S {type:RESULT,id_game:id, result:id_user/empate/anulada}
+        G---->C {type:RESPONSE,MESSAGE:error}   #El servidor GAME a rechazado el join por alguna razon
+    S----C {Type:RESPONSE,MESSAGE:ERROR}    #El servidor principal a rechazado el join por alguna razon
+
