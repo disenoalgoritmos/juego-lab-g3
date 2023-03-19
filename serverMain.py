@@ -301,7 +301,7 @@ class Servidor:
                         game = self.games.get(id_game_user)
                         addrJugador1=game[0][1]
                         addrJugador2=game[1][1]
-                        addrServer = ["127.0.0.1","8908"] 
+                        addrServer = ["127.0.0.1","8909"] 
                         if(platform.system()=="Windows"):
                             print("es windows")
                             
@@ -466,7 +466,7 @@ async def main():
     
     #Servidor exclusivo para game que escucha los resultados de las partidas
     server_game_asyncio = await asyncio.start_server(
-        servidor.handle_server_game, '127.0.0.1', 8908)
+        servidor.handle_server_game, '127.0.0.1', 8909)
     #Tambien podria crear el server_game a la vez que creo el proceso del servidor GAME
     #Y que cada GAME tenga su propio server_game_asyncio 
 
