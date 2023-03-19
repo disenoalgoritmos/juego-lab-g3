@@ -1,7 +1,7 @@
 import asyncio
 import threading
 import json
-import os
+import platform
 import subprocess
 
 
@@ -301,10 +301,14 @@ class Servidor:
                         game = self.games.get(id_game_user)
                         addrJugador1=game[0][1]
                         addrJugador2=game[1][1]
-                        addrServer = ["127.0.0.1","8890"] 
-
-                        subprocess.Popen(["python",".\servidorGAME_socket.py",addrJugador1[0],addrJugador1[1],addrJugador2[0],addrJugador2[1],addrServer[0],addrServer[1]],shell=True)#Para pruebas con clienteTest 
-
+                        addrServer = ["127.0.0.1","8889"] 
+                        if(platform.system()=="Windows"):
+                            print("es windows")
+                            
+                            subprocess.Popen(["python",".\servidorGAME_socket.py",addrJugador1[0],addrJugador1[1],addrJugador2[0],addrJugador2[1],addrServer[0],addrServer[1]],creationflags =subprocess.CREATE_NEW_CONSOLE)
+                        else:
+                            print("no es windows")
+                            subprocess.Popen(["python3","./servidorGAME_socket.py",addrJugador1[0],addrJugador1[1],addrJugador2[0],addrJugador2[1],addrServer[0],addrServer[1]])
                     msg_response = {
                         "TYPE":"RESPONSE",
                         "MESSAGE":"OK"
@@ -473,7 +477,8 @@ async def main():
 
     async with server_asyncio:
         async with server_game_asyncio:
-            #subprocess.Popen("python .\client.py",shell=True)#Para pruebas con clienteTest 
+            if(platform.system()=="Windows"):
+                subprocess.Popen("python .\client.py",creationflags =subprocess.CREATE_NEW_CONSOLE)#Para pruebas con clienteTest 
             #y como ejemplo de ejecutar un proceso en segundo plano.Argumento1 y 2 no hacen nada, solo es un ejemplo de como lo pasare
             await server_game_asyncio.serve_forever()        
         await server_asyncio.serve_forever()

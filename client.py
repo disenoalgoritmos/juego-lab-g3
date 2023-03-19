@@ -2,21 +2,25 @@ import asyncio
 import json
 import subprocess
 import socket
+import platform
+import random
 
 
 class Client:
 
     def __init__(self):
+        self.ip = '127.0.0.1'
         self.user = ""
         self.password = ""
         self.new_password = ""
         self.writer=None
         self.reader=None
         self.salir=False
+        self.jugador=None
     
     async def run(self):
         self.reader, self.writer = await asyncio.open_connection(
-        '127.0.0.1', 8908)
+        self.ip, 8888)
 
         print(  "  _______     _____  _____ \n"+
                 " |__   __|   |  ___|/  _  \ \n"+
@@ -234,27 +238,30 @@ class Client:
                 id=input("\nSeleccione una partida:")
 
             print("\nPartida seleccionada correctamente")
-            ip=input("Introduzca la ip del servidor:")
-            puerto=input("\nIntroduzca el puerto del servidor:")
-            correcto=False
-            while correcto==False: 
-                try:
-                    # Intenta crear una conexión usando la dirección IP y el puerto proporcionados
-                    socket.inet_aton(ip)
-                    if 0 < int(puerto) < 65535:
-                        print("\nLa dirección IP y el puerto son válidos")
+            
+            puertos = range(1, 65535)
+            puerto=random.choice(puertos)
+
+            correcto = False
+            while correcto == False:
+                print("\nSeleccione una opción: ")
+                print("1. Jugador manual")
+                print("2. Jugador torpe (al azar)")
+                #print("3. Jugador perfecto (algortimo minimax)")
+                opcion = input()
+
+                if opcion.isdigit():
+                    opcion = int(opcion)
+                    if opcion in [1,2]:
+                        self.jugador=opcion
                         correcto=True
                     else:
-                        print("\nEl puerto no es válido")
-                        puerto=input("Introduzca el puerto del servidor:")
-                except socket.error:
-                    print("\nLa dirección IP no es válida")
-                    ip=input("Introduzca la ip del servidor:")
-                except ValueError:
-                    print("\nEl puerto no es válido")
-                    puerto=input("Introduzca el puerto del servidor:")
+                        print("Opción inválida, opción no disponible")
+                else:
+                    print("Opción inválida, introduzca un número")
+
             
-            message = {"TYPE": "JOIN_GAME", "ID_GAME": id, "ADDR":[ip,puerto]}
+            message = {"TYPE": "JOIN_GAME", "ID_GAME": id, "ADDR":[self.ip, str(puerto)]}
             self.writer.write(json.dumps(message).encode())
             await self.writer.drain()
             await self.comprobeResponse2(message)
@@ -268,9 +275,12 @@ class Client:
 
         elif message['TYPE'] == "JOIN_GAME" and response['MESSAGE'] == "OK":
             print("\nPartida unida correctamente")
-            argumentos = [str(message.get('ADDR')[0]), str(message.get('ADDR')[1])]
+            argumentos = [str(message.get('ADDR')[0]), str(message.get('ADDR')[1]), str(self.jugador)]
             comando = ["python", ".\clienteGAME_socket.py"] + argumentos
-            subprocess.Popen(comando, shell=True)
+            if(platform.system()=="Windows"):
+                subprocess.Popen(comando, creationflags =subprocess.CREATE_NEW_CONSOLE)
+            else:
+                print(f"Ejecute el siguiente comando en otra terminal: python3 clienteGAME_socket.py  {str(message.get('ADDR')[0])} {str(message.get('ADDR')[1])} {str(self.jugador)} ")    
             # Unirse a una partida
             message = await self.menu2()
             self.writer.write(json.dumps(message).encode())
