@@ -239,7 +239,7 @@ class Client:
 
             print("\nPartida seleccionada correctamente")
             
-            puertos = range(1, 65535)
+            puertos = range(49153, 65535)
             puerto=random.choice(puertos)
 
             correcto = False
