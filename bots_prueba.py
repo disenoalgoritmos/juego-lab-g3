@@ -458,20 +458,19 @@ class Molino():
 
     def detecta_jugada_desarrollar(self, lista_sucesores, nodo_padre):
         
-        if len(nodo_padre.devuelve_sucesores_desarrollados()) < len(lista_sucesores): # en caso de que ya se hayan desarrollado todas sus jugadas se devueve None
+        # se devuelve también el número de sucesores que no se han desarrollado aún en el nodo_padre para detectar cuando todos los suyos ya se han estudiado
+        # y no hace falta meterlo en la lista de nodos seleccionables
 
-            for sucesor_posible in lista_sucesores:
-                if self.comprueba_condiciones_derrota(sucesor_posible.get('NEXT_STATE')) and not nodo_padre.comprueba_sucesor_desarrollado(lista_sucesores.index(sucesor_posible)+1):
-                    nodo_padre.añadir_sucesor_desarrollado(lista_sucesores.index(sucesor_posible)+1)
-                    return sucesor_posible  # si con alguna jugada se gana directamente, se elige
-            
-            for i in range(len(lista_sucesores)):
-                if not nodo_padre.comprueba_sucesor_desarrollado(i+1):
-                    nodo_padre.añadir_sucesor_desarrollado(i+1)
-                    return lista_sucesores[i] #en caso de no haber ninguna jugada ganadora, devueve una jugada que no se haya desarrollado aún
-        else:
-            return None
-
+        for sucesor_posible in lista_sucesores:
+            if self.comprueba_condiciones_derrota(sucesor_posible.get('NEXT_STATE')) and not nodo_padre.comprueba_sucesor_desarrollado(lista_sucesores.index(sucesor_posible)+1):
+                nodo_padre.añadir_sucesor_desarrollado(lista_sucesores.index(sucesor_posible)+1)
+                return sucesor_posible # si con alguna jugada se gana directamente, se elige
+        
+        for i in range(len(lista_sucesores)):
+            if not nodo_padre.comprueba_sucesor_desarrollado(i+1):
+                nodo_padre.añadir_sucesor_desarrollado(i+1)
+                return lista_sucesores[i] #en caso de no haber ninguna jugada ganadora, devueve una jugada que no se haya desarrollado aún
+    
     def valora_nodo(self,nodo):
         return nodo.devuelve_valor()
     
@@ -512,7 +511,7 @@ class Molino():
         lista_nodos, sucesores_desarrollados = self.crear_nodos_sucesores_iniciales(nodo_raiz)
         contador_iteraciones = sucesores_desarrollados +1
         
-        while (sucesores_desarrollados +1+num_iteraciones) != contador_iteraciones:
+        while (sucesores_desarrollados +1+num_iteraciones) != contador_iteraciones and len(lista_nodos) != 0:
 
             ### SELECCIÓN ###
             nodo_seleccion = heapq.nlargest(1,lista_nodos, key= self.valora_nodo)[0] #ordeno por valor los nodos y saco el mejor
@@ -527,9 +526,12 @@ class Molino():
             else:
                 lista_sucesores = self.crea_sucesores(self.state_inicial.get('TURN'),self.state_inicial)
 
-            sucesor_optimo = self.detecta_jugada_desarrollar(lista_sucesores, nodo_seleccion) ##########HAY QUE CONTROLAR CUANDO DEVUELVE NONE
+            sucesor_optimo = self.detecta_jugada_desarrollar(lista_sucesores, nodo_seleccion)
             nodo_expansion.establecer_sucesor(sucesor_optimo)
             
+            if (len(lista_sucesores) - len(nodo_seleccion.devuelve_sucesores_desarrollados())) == 0:
+                lista_nodos.pop(lista_nodos.index(nodo_seleccion)).devuelve_id()
+
             ### SIMULACIÓN ###
             resultado_simulacion = self.simula_partida(nodo_expansion.sucesor, nuestro_turno, 2, 2)
 
@@ -570,9 +572,15 @@ if __name__ == "__main__":
     
     jugador1 = Molino()
     inicio = time.time()
-    if jugador1.simula_partida(None,0,3,2) == 1:
-        print("GANADOR: JUGADOR 0")
-    else:
-        print("GANADOR: JUGADOR 1")
+    contador_victorias = 0
+
+    for i in range(10):
+        if jugador1.simula_partida(None,0,3,2) == 1:
+            #print("GANADOR: JUGADOR 0")
+            contador_victorias += 1
+        #else:
+            #print("GANADOR: JUGADOR 1")
+            
+    print("PARTIDAS GANADAS: " + str(contador_victorias) + "/10")
     fin = time.time()
     print(fin-inicio)  #0.025-0.03 MÁS O MENOS ES EL TIEMPO MEDIO, POR ESO PARA 100 PARTIDAS SERÁN UNOS 3 SEGUNDOS

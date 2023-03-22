@@ -24,7 +24,8 @@ se está manejando para actualizar el atributo mejor_hijo del padre. Esto es ese
 **Es necesario controlar que de un nodo no se creen varios nodos hijos con la misma jugada, por lo que he pensado que la solución será poner un atributo sucesores_desarrollados
 en cada nodo que contenga con números del 1 al 24 (o menos en función de si no hay tantos sucesores) las jugadas ya contenidas en sus nodos hijos, y así al desarrollar un nodo 
 hijo posteriormente se tenga en cuenta. Modifiqué el método detecta_jugada_desarrollar() para que devolviera la mejor jugada o (aleatoria si son iguales) asegurándose
-de que no pertenece a un hijo del nodo tratado.
+de que no pertenece a un hijo del nodo tratado.  En el método se devuelve también el número de sucesores que no se han desarrollado aún en el nodo_padre para detectar cuando 
+todos los suyos ya se han estudiado y no hace falta meterlo en la lista de nodos seleccionables.
 
 '''
 
@@ -61,6 +62,9 @@ dado un sucesor_inicial:
 
         sucesor_optimo <- detecta_jugada_ganadora(lista_sucesores) AND NOT(desarrollado(sucesor_optimo))
         nodo_expansion.establecer_sucesor(sucesor_optimo)
+
+        if nodo_expansion.sucesores_sin_desarrollar() == []: # en caso de que un nodo ya se haya expandido completamente, no se vuelve a meter en la lista
+            lista_nodos.pop(nodo_seleccion)
 
         ### SIMULACIÓN ###
         resultado_simulacion <- simula_partida(nodo_expansion.sucesor, nuestro_turno)
