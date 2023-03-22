@@ -1,0 +1,105 @@
+- Clase Nodo_Montecarlo con atributos como el id, padre, el mejor hijo, sucesor, veces visitado (N) y almacen de resultados de simulaciones (Q)
+
+- Clase Jugador_Torpe, que es igual al archivo bots_prueba.py, pero que realiza aleatoriamente jugadas en su turno
+
+- Un método llamado simula partida, dentro de la clase Jugador_Torpe, y que, dado un sucesor (como el que nos mandará el rival), es capaz de simular 
+  aleatoriamente una partida y devolver -1 si se pierde o 1 si se gana (se utilizará en el algoritmo del árbol de montecarlo). Detecta si hemos ganado porque 
+  posee como argumento el jugador que nos representa y lo compara con el que haya ganado. 
+
+- Método detecta_jugada_desarrollar(), que dada una lista de sucesores devuelve aquel que permita ganar directamente, o uno aleatorio en caso de que ninguno lo haga.**
+
+- En el árbol, si el estado del que se parte es None, debe usarse como estado para calcular los sucesores el estado inicial que los jugadores tienen cargado.
+- Usaré una lista en la que se meterán todos los nodos que se vayan creando. Usando heapq.nlargest() y gracias al método "valora_nodo()" creado manualmente 
+  que se encarga de devolver el valor de cada nodo que se le pase, es posible obtener en cada momento el nodo más prometedor.
+      
+- He establecido que el número de veces que el padre de la raíz se ha visitado es siempre 2 para evitar errores (pues su padre es None). El profesor me ha dicho que podemos
+ desarrollar primero todos los sucesores del nodo raíz y meterlos en la lista (sin él mismo). También he establecido que cuando el cálculo del valor del nodo raíz fuera a dar 
+ error en la primera iteración por no haberse visitado aún, se devuelva 0
+  ## SI SE HACE LO DEL PROFESOR --> para evitar este error por cada nodo creado desde el raíz (uno por cada uno de sus sucesores) se visita tanto el nodo 
+  creado como la raíz ################## MUY IMPORTANTE ##################
+
+- Cada vez que se coge un nodo para actualizar sus valores, se mira en su padre por si no tiene mejor hijo o por si ese mejor hijo posee menor valor que el nodo que 
+se está manejando para actualizar el atributo mejor_hijo del padre. Esto es esencial para al final del árbol de montecarlo coger la raíz y devolver su mejor hijo.
+
+**Es necesario controlar que de un nodo no se creen varios nodos hijos con la misma jugada, por lo que he pensado que la solución será poner un atributo sucesores_desarrollados
+en cada nodo que contenga con números del 1 al 24 (o menos en función de si no hay tantos sucesores) las jugadas ya contenidas en sus nodos hijos, y así al desarrollar un nodo 
+hijo posteriormente se tenga en cuenta. Modifiqué el método detecta_jugada_desarrollar() para que devolviera la mejor jugada o (aleatoria si son iguales) asegurándose
+de que no pertenece a un hijo del nodo tratado.
+
+'''
+
+dado un sucesor_inicial:
+
+    lista_nodos <- []
+
+    if sucesor_inicial != None:
+        nuestro_turno <- sucesor_inicial.get('NEXT_STATE').get('TURN')
+    else:
+        nuestro_turno <- 0 #CUIDADO CON ESTOOOOOOOOOOOOOO
+
+    nodo_raiz <- crear nodoMontecarlo(0)
+    nodo_raiz.establecer_sucesor(sucesor_inicial)
+    lista_nodos,num_sucesores_inicio = introducir_sucesores(nodo_inicial)  # algoritmo de este método abajo del todo
+
+    contador_iteraciones = num_sucesores_inicio
+
+    while no se hayan hecho las (n iteraciones + num_sucesores_inicio): #sin contar los <<num_sucesores_inicio>> sucesores que ya contiene la lista
+    
+        ### SELECCIÓN ###
+                
+        nodo_seleccion <- heapq.nlargest(1,lista_nodos)
+
+        ### EXPANSIÓN ###
+        nodo_expansion <- crear nodoMontecarlo(contador_iteraciones)
+        nodo_expansion.establecer_padre(nodo_seleccion)
+        lista_nodos.append(nodo_expansion)
+
+        if nodo_seleccion.sucesor != None:
+            lista_sucesores <- crear_sucesores(nodo_seleccion.sucesor.next_state)
+        else:
+            lista_sucesores <- crear_sucesores(self.state_inicial)  #CUIDADO CON ESTOOOOOOOOOOOOOO
+
+        sucesor_optimo <- detecta_jugada_ganadora(lista_sucesores) AND NOT(desarrollado(sucesor_optimo))
+        nodo_expansion.establecer_sucesor(sucesor_optimo)
+
+        ### SIMULACIÓN ###
+        resultado_simulacion <- simula_partida(nodo_expansion.sucesor, nuestro_turno)
+
+        ### ACTUALIZACIÓN ###
+
+        nodo_actualizacion <- nodo_expansion
+
+        while nodo_actualizacion != None:
+
+            nodo_actualizacion.visitar()
+            nodo_actualizacion.añadir_resultado(resultado_simulacion)
+            
+            if nodo_actualizacion.padre.mejor_hijo == None:
+                nodo_actualizacion.padre.mejor_hijo = nodo_actualizacion
+            elif nodo_actualizacion.padre.mejor_hijo.devuelve_valor() < nodo_actualizacion.devuelve_valor():
+                nodo_actualizacion.padre.mejor_hijo = nodo_actualizacion
+
+            nodo_actualizacion <- nodo.acualizacion.padre
+
+'''
+  
+'''
+
+def introducir_sucesores(nodo_inicial):
+
+    lista_aux <- []
+    contador_aux = 1 #num de sucesores (identificadores usados)
+
+    for sucesor in crear_sucesores(nodo_inicial):
+        nodo_aux = crear nodoMontecarlo(contador_aux)
+        contador_aux +=1
+        nodo_aux.establecer_padre(nodo_inicial)
+        nodo_aux.establecer_sucesor(sucesor)
+        nodo_aux.visitar() # para evitar errores de la fórmula UCT
+        nodo_inicial.visitar() # para evitar errores de la fórmula UCT
+        lista_aux.append(nodo_aux)
+
+    return lista_aux,contador_aux
+
+
+'''
