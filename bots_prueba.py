@@ -573,14 +573,15 @@ if __name__ == "__main__":
     jugador1 = Molino()
     inicio = time.time()
     contador_victorias = 0
+    num_partidas = 1
 
-    for i in range(10):
+    for i in range(num_partidas):
         if jugador1.simula_partida(None,0,3,2) == 1:
             #print("GANADOR: JUGADOR 0")
             contador_victorias += 1
         #else:
             #print("GANADOR: JUGADOR 1")
             
-    print("PARTIDAS GANADAS: " + str(contador_victorias) + "/10")
+    print("PARTIDAS GANADAS: " + str(contador_victorias) + "/"+str(num_partidas))
     fin = time.time()
     print(fin-inicio)  #0.025-0.03 MÁS O MENOS ES EL TIEMPO MEDIO, POR ESO PARA 100 PARTIDAS SERÁN UNOS 3 SEGUNDOS

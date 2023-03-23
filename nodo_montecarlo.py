@@ -42,15 +42,15 @@ class Nodo_Montecarlo():
         return self.N
 
     def devuelve_valor(self):   
-        if self.padre == None: # ESTO HAY QUE PREGUNTARLO LUEGO
-            N_padre = 1
-        else:
-            N_padre = self.devuelve_padre().devuelve_N()
+        #if self.padre == None: # ESTO HAY QUE PREGUNTARLO LUEGO
+        #    N_padre = 1
+        #else:
+        N_padre = self.devuelve_padre().devuelve_N()
 
-        if N_padre > 0 and self.N > 0: 
-            return  float(self.Q/self.N + 2/sqrt(2) * sqrt(2*log(N_padre,2)/self.N))
-        else:
-            return 0
+        #if N_padre > 0 and self.N > 0: 
+        return  float(self.Q/self.N + 2/sqrt(2) * sqrt(2*log(N_padre,2)/self.N))
+        #else:
+        #    return 0
         
     def devuelve_sucesores_desarrollados(self):
         return self.sucesores_desarrollados
