@@ -1,8 +1,14 @@
 import copy
 import json
 import random
+from nodo_montecarlo import *
+import time
+import heapq
+
+
 class Molino():
 
+    
     def __init__(self):
         self.state_enviado = None
         self.state_inicial, accion = self.cargar_datos("target.json")
@@ -105,7 +111,7 @@ class Molino():
             if fila <= long_matriz-1:
                 cadena_tablero +="\n"
 
-        print(cadena_tablero)
+        print(cadena_tablero) 
 
     def cambia_turno(self, turno):
         if turno == 0:
@@ -218,7 +224,7 @@ class Molino():
                 except:
                     print("\n<<< [ERROR] Debe escribir un número entero que represente a una opción que sea válida. Repita el proceso >>>\n")
                     
-        return opcion_elegida   
+        return opcion_elegida 
 
     def valida_estado_inicial_rival(self, state_enviado, sucesor_rival):
 
@@ -309,13 +315,13 @@ class Molino():
         #comprobar que has perdido con el state que recibas (después de verificar su validez)
         if state_analizar.get('CHIPS')[0] == 0 and state_analizar.get('CHIPS')[1] == 0:
             if len(state_analizar.get('GAMER')[state_analizar.get('TURN')]) <= 2:
-                print("<<< [FIN DEL JUEGO] ¡El jugador '" + str(state_analizar.get('TURN')) + "' posee 2 o menos fichas en su poder >>>")
-                print("\n-----------------------------------------------------------------------------------------------------------------------------\n")    
+                #print("\n<<< [FIN DEL JUEGO] ¡El jugador '" + str(state_analizar.get('TURN')) + "' posee 2 o menos fichas en su poder >>>")
+                #print("\n-----------------------------------------------------------------------------------------------------------------------------\n")    
                 return True
             
             elif len(self.devuelve_fichas_a_mover(state_analizar,state_analizar.get('TURN'))) == 0:
-                print("<<< [FIN DEL JUEGO] ¡El jugador " + str(state_analizar.get('TURN')) + " no puede mover ninguna ficha en juego! >>>")
-                print("\n-----------------------------------------------------------------------------------------------------------------------------\n")    
+                #print("\n<<< [FIN DEL JUEGO] ¡El jugador " + str(state_analizar.get('TURN')) + " no puede mover ninguna ficha en juego! >>>")
+                #print("\n-----------------------------------------------------------------------------------------------------------------------------\n")    
                 return True
 
     def crea_sucesores(self, turno, state):
@@ -354,20 +360,28 @@ class Molino():
 
         return lista_sucesores
 
-    def genera_movimiento(self,sucesor_rival, jugador):
+    def genera_movimiento(self,sucesor_rival, tipo_jugador):
 
         if sucesor_rival == None: #es el primer turno
-            print("\n-----------------------------------------------------------------------------------------------------------------------------\n")
-            print("<<< Turno del jugador " + str(self.state_inicial.get('TURN')) + " >>>\n")
-            self.imprime_tablero(self.state_inicial) ##################################
-            lista_sucesores = self.crea_sucesores(self.state_inicial.get("TURN"),self.state_inicial)
-            if int(jugador)==1:
-                self.imprime_sucesores(lista_sucesores)  ##################################
+
+            if int(tipo_jugador) == 1:
+                lista_sucesores = self.crea_sucesores(self.state_inicial.get("TURN"),self.state_inicial)
+                print("\n-----------------------------------------------------------------------------------------------------------------------------\n")
+                print("<<< Turno del jugador " + str(self.state_inicial.get('TURN')) + " >>>\n")
+                self.imprime_tablero(self.state_inicial) 
+                self.imprime_sucesores(lista_sucesores)  
                 eleccion_sucesor = self.pide_opcion_valida(list(range(1,len(lista_sucesores)+1))) -1  # LUEGO NO HARÍA FALTA PEDIR UN NÚMERO CORRECTO
-                sucesor_generado = lista_sucesores[eleccion_sucesor] ###################################
-            elif int(jugador)==2:
+                sucesor_generado = lista_sucesores[eleccion_sucesor]
+
+            elif int(tipo_jugador) == 2:
+                lista_sucesores = self.crea_sucesores(self.state_inicial.get("TURN"),self.state_inicial)
                 sucesor_generado = random.choice(lista_sucesores)
+
+            elif int(tipo_jugador) == 3:
+                sucesor_generado = self.desarrolla_arbol_montecarlo(None,50)
+            
             self.sucesor_enviado =  sucesor_generado
+        
         else:
 
             if self.sucesor_enviado != None and not self.valida_estado_inicial_rival(self.sucesor_enviado.get('NEXT_STATE'),sucesor_rival) and not self.valida_jugada(sucesor_rival): 
@@ -377,19 +391,24 @@ class Molino():
             
             if self.comprueba_condiciones_derrota(sucesor_rival.get("NEXT_STATE")):
                 return "Derrota",None
-            
-            print("\n-----------------------------------------------------------------------------------------------------------------------------\n")
-            print("<<< Turno del jugador " + str(sucesor_rival.get("NEXT_STATE").get('TURN')+1) + " >>>\n")
-            self.imprime_tablero(sucesor_rival.get("NEXT_STATE")) ##################################
 
-            lista_sucesores = self.crea_sucesores(sucesor_rival.get("NEXT_STATE").get("TURN"),sucesor_rival.get("NEXT_STATE"))
-            
-            if int(jugador)==1:
-                self.imprime_sucesores(lista_sucesores)  ##################################
+            if int(tipo_jugador) == 1:
+                lista_sucesores = self.crea_sucesores(sucesor_rival.get("NEXT_STATE").get("TURN"),sucesor_rival.get("NEXT_STATE"))
+                print("\n-----------------------------------------------------------------------------------------------------------------------------\n")
+                print("<<< Turno del jugador " + str(sucesor_rival.get("NEXT_STATE").get('TURN')+1) + " >>>\n")
+                self.imprime_tablero(sucesor_rival.get("NEXT_STATE")) 
+                self.imprime_sucesores(lista_sucesores)  
                 eleccion_sucesor = self.pide_opcion_valida(list(range(1,len(lista_sucesores)+1))) -1  # LUEGO NO HARÍA FALTA PEDIR UN NÚMERO CORRECTO
-                sucesor_generado = lista_sucesores[eleccion_sucesor] ###################################
-            elif int(jugador)==2:
+                sucesor_generado = lista_sucesores[eleccion_sucesor] 
+
+            elif int(tipo_jugador) == 2:
+                lista_sucesores = self.crea_sucesores(sucesor_rival.get("NEXT_STATE").get("TURN"),sucesor_rival.get("NEXT_STATE"))
                 sucesor_generado = random.choice(lista_sucesores)
+            
+            elif int(tipo_jugador) == 3:
+                sucesor_generado = self.desarrolla_arbol_montecarlo(sucesor_rival,50)
+
+
             self.sucesor_enviado =  sucesor_generado
             
             if self.comprueba_condiciones_derrota(self.sucesor_enviado.get('NEXT_STATE')): #el estado al que llegaremos nos hace ganar
@@ -397,7 +416,7 @@ class Molino():
         
         # ESTO ES PARA PROBAR LO DE ENVIAR SUCESORES ERRÓNEOS
         #sucesor_generado.get('NEXT_STATE').get('GAMER')[sucesor_generado.get('STATE').get('TURN')] = []
-
+        
         return "Acción normal",sucesor_generado
         
     def devuelve_mensaje_RESPONSE(self, message):
@@ -406,22 +425,162 @@ class Molino():
             "MESSAGE":message
         }
         return msg
-'''
-if __name__ == "__main__":
 
-    molino1 = Molino()
-    molino2 = Molino()
+    def simula_partida(self, sucesor_inicial, jugador_nuestro, tipo_jugador1, tipo_jugador2):  #desde un sucesor cualquiera, simula el resultado de una partida con jugadores aleatorios
+ 
+        jugador1 = Molino() 
+        jugador2 = Molino()
+        resultado = None
+        ganador = None
 
-    seguir = True
-    sucesor_2 = None
-    while seguir:
-        sucesor_1 = molino1.genera_movimiento(sucesor_2)
-        if sucesor_1=="Derrota" or sucesor_1=="Accion incorrecta":
-            print(molino1.devuelve_mensaje_RESPONSE("ERROR"))
-            seguir = False
-        else:
-            sucesor_2 = molino2.genera_movimiento(sucesor_1)
-            if sucesor_2=="Derrota" or sucesor_2=="Acción incorrecta":
-                print(molino2.devuelve_mensaje_RESPONSE("ERROR"))
+        seguir = True
+        sucesor_2 = sucesor_inicial
+        while seguir:
+
+            mensaje_1,sucesor_1 = jugador1.genera_movimiento(sucesor_2,tipo_jugador1)
+            if mensaje_1=="Victoria":
                 seguir = False
-'''
+                #jugador1.imprime_tablero(sucesor_1.get('NEXT_STATE'))
+                ganador = int(sucesor_1.get('STATE').get('TURN'))
+            else:
+                mensaje_2 ,sucesor_2= jugador2.genera_movimiento(sucesor_1,tipo_jugador2)
+                if mensaje_2=="Victoria":
+                    seguir = False
+                    #jugador2.imprime_tablero(sucesor_2.get('NEXT_STATE'))
+                    ganador = int(sucesor_2.get('STATE').get('TURN'))
+        
+        if ganador == jugador_nuestro:
+            resultado = 1
+        else:
+            resultado = -1
+
+        return resultado
+
+    def detecta_jugada_desarrollar(self, lista_sucesores, nodo_padre):
+        
+        # se devuelve también el número de sucesores que no se han desarrollado aún en el nodo_padre para detectar cuando todos los suyos ya se han estudiado
+        # y no hace falta meterlo en la lista de nodos seleccionables
+
+        for sucesor_posible in lista_sucesores:
+            if self.comprueba_condiciones_derrota(sucesor_posible.get('NEXT_STATE')) and not nodo_padre.comprueba_sucesor_desarrollado(lista_sucesores.index(sucesor_posible)+1):
+                nodo_padre.añadir_sucesor_desarrollado(lista_sucesores.index(sucesor_posible)+1)
+                return sucesor_posible # si con alguna jugada se gana directamente, se elige
+        
+        for i in range(len(lista_sucesores)):
+            if not nodo_padre.comprueba_sucesor_desarrollado(i+1):
+                nodo_padre.añadir_sucesor_desarrollado(i+1)
+                return lista_sucesores[i] #en caso de no haber ninguna jugada ganadora, devueve una jugada que no se haya desarrollado aún
+    
+    def valora_nodo(self,nodo):
+        return nodo.devuelve_valor()
+    
+    def crear_nodos_sucesores_iniciales(self, nodo_inicial):
+
+        lista_aux = []
+        contador_Aux = 1
+
+        if nodo_inicial.devuelve_sucesor() != None:
+            lista_sucesores = self.crea_sucesores(nodo_inicial.devuelve_sucesor().get('NEXT_STATE').get('TURN'),nodo_inicial.devuelve_sucesor().get('NEXT_STATE'))
+        else:
+            lista_sucesores = self.crea_sucesores(self.state_inicial.get('TURN'),self.state_inicial)
+
+        for sucesor in lista_sucesores:
+            nodo_aux = Nodo_Montecarlo(contador_Aux)
+            contador_Aux += 1
+            nodo_aux.establecer_padre(nodo_inicial)
+            nodo_aux.establecer_sucesor(sucesor)
+            nodo_aux.visitar()
+            nodo_inicial.visitar()
+            nodo_inicial.añadir_sucesor_desarrollado(contador_Aux)
+            lista_aux.append(nodo_aux)
+        
+        return lista_aux,contador_Aux
+        
+    def desarrolla_arbol_montecarlo(self, sucesor_inicial, num_iteraciones):
+
+        contador_iteraciones = 0 
+        lista_nodos = []
+        
+        if sucesor_inicial != None:
+            nuestro_turno = sucesor_inicial.get('NEXT_STATE').get('TURN')
+        else:
+            nuestro_turno = 0
+        
+        nodo_raiz = Nodo_Montecarlo(0)
+        nodo_raiz.establecer_sucesor(sucesor_inicial)
+        lista_nodos, sucesores_desarrollados = self.crear_nodos_sucesores_iniciales(nodo_raiz)
+        contador_iteraciones = sucesores_desarrollados +1
+        
+        while (sucesores_desarrollados +1+num_iteraciones) != contador_iteraciones and len(lista_nodos) != 0:
+
+            ### SELECCIÓN ###
+            nodo_seleccion = heapq.nlargest(1,lista_nodos, key= self.valora_nodo)[0] #ordeno por valor los nodos y saco el mejor
+            
+            ### EXPANSIÓN ###
+            nodo_expansion = Nodo_Montecarlo(contador_iteraciones)
+            nodo_expansion.establecer_padre(nodo_seleccion)
+            lista_nodos.append(nodo_expansion) 
+
+            if nodo_seleccion.devuelve_sucesor() != None:
+                lista_sucesores = self.crea_sucesores(nodo_seleccion.devuelve_sucesor().get('NEXT_STATE').get('TURN'),nodo_seleccion.devuelve_sucesor().get('NEXT_STATE'))
+            else:
+                lista_sucesores = self.crea_sucesores(self.state_inicial.get('TURN'),self.state_inicial)
+
+            sucesor_optimo = self.detecta_jugada_desarrollar(lista_sucesores, nodo_seleccion)
+            nodo_expansion.establecer_sucesor(sucesor_optimo)
+            
+            if (len(lista_sucesores) - len(nodo_seleccion.devuelve_sucesores_desarrollados())) == 0:
+                lista_nodos.pop(lista_nodos.index(nodo_seleccion)).devuelve_id()
+
+            ### SIMULACIÓN ###
+            resultado_simulacion = self.simula_partida(nodo_expansion.sucesor, nuestro_turno, 2, 2)
+
+            ### ACTUALIZACIÓN ###
+            nodo_actualizacion = nodo_expansion
+
+            while nodo_actualizacion != None:
+                
+                nodo_actualizacion.visitar()
+                nodo_actualizacion.añadir_resultado(resultado_simulacion)
+
+                if nodo_actualizacion.devuelve_padre() != None:
+                    if nodo_actualizacion.devuelve_padre().devuelve_mejor_hijo() == None:
+                        nodo_actualizacion.devuelve_padre().establecer_mejor_hijo(nodo_actualizacion)
+                    elif nodo_actualizacion.devuelve_padre().devuelve_mejor_hijo().devuelve_valor() < nodo_actualizacion.devuelve_valor():
+                        nodo_actualizacion.devuelve_padre().establecer_mejor_hijo(nodo_actualizacion)
+
+                nodo_actualizacion = nodo_actualizacion.devuelve_padre() # permite subir hasta la raíz
+
+            contador_iteraciones += 1
+        
+        '''for nodo in lista_nodos:
+            print("---------------")
+            print("ID: ",nodo.devuelve_id())
+            if nodo.devuelve_padre() != None:
+                print("PADRE: ",nodo.devuelve_padre().devuelve_id())
+            else:
+                print("PADRE: -")
+            print("VALOR: ",nodo.devuelve_valor())
+            print("N: ",nodo.devuelve_N())
+            print("Q: ",nodo.devuelve_Q())
+            print("Sucesor: ",nodo.devuelve_sucesor())
+            print("---------------")'''
+
+        return nodo_raiz.devuelve_mejor_hijo().devuelve_sucesor()
+
+if __name__ == "__main__":
+    
+    jugador1 = Molino()
+    inicio = time.time()
+    contador_victorias = 0
+
+    for i in range(10):
+        if jugador1.simula_partida(None,0,3,2) == 1:
+            #print("GANADOR: JUGADOR 0")
+            contador_victorias += 1
+        #else:
+            #print("GANADOR: JUGADOR 1")
+            
+    print("PARTIDAS GANADAS: " + str(contador_victorias) + "/10")
+    fin = time.time()
+    print(fin-inicio)  #0.025-0.03 MÁS O MENOS ES EL TIEMPO MEDIO, POR ESO PARA 100 PARTIDAS SERÁN UNOS 3 SEGUNDOS

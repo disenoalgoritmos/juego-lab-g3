@@ -43,29 +43,20 @@ class Servidor:
             #Falta controlar las excepciones que se pueden producir si en el json recibido no tiene las claves correctas como TYPE o USER
             msg_type = msg_json.get("TYPE")
             if(msg_type=="RESULT"):                
-
-                #comprobamos que existe la partida
-                if(msg_json.get("ID_GAME") in self.games.keys):
-                    if(msg_json.get("RESULT"))=="EMPATE":
-                        print(f'La partida con id {msg_json.get("ID_GAME")} ha terminado en empate')
-                    elif (msg_json.get("RESULT")=="ANULADA") :
-                        print(f'La partida con id {msg_json.get("ID_GAME")} ha sido anulada')
-                    else:
-                        print(f'La partida con id {msg_json.get("ID_GAME")} ha terminado con el jugador {msg_json.get("RESULT")} ganando')
-                    
-                    msg_response = {
-                            "TYPE":"RESPONSE",
-                            "MESSAGE":"OK"
-                            }
+                if(msg_json.get("RESULT"))=="EMPATE":
+                    print(f'La partida con id {msg_json.get("ID_GAME")} ha terminado en empate')
+                elif (msg_json.get("RESULT")=="ANULADA") :
+                    print(f'La partida con id {msg_json.get("ID_GAME")} ha sido anulada')
                 else:
-                    print(f'ERROR: La partida con id {msg_json.get("ID_GAME")} no existe')
+                    print(f'La partida  ha terminado con el jugador {msg_json.get("RESULT")} ganando')
+                    
+                msg_response = {
+                        "TYPE":"RESPONSE",
+                        "MESSAGE":"OK"
+                        }
 
-                    msg_response = {
-                            "TYPE":"RESPONSE",
-                            "MESSAGE":"ERROR"
-                            }
-                writer.write(json.dumps(msg_response).encode())
-                await writer.drain()
+            writer.write(json.dumps(msg_response).encode())
+            await writer.drain()
 
 
 
