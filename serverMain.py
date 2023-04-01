@@ -10,7 +10,7 @@ class Servidor:
     def __init__(self) -> None:
 
         #self.users_connections = {}#Borrar
-        self.games = {}#{idGame:[(j1,addr1),(j2,addr2)]}
+        self.games = {}#{idGame:[(j1,addr1,tipoJugador),(j2,addr2,tipoJugador)]}
 
         self.nombre_archivo,self.candado_archivo_texto = self.inicializaBBDD("credenciales.txt")
 
@@ -42,13 +42,45 @@ class Servidor:
 
             #Falta controlar las excepciones que se pueden producir si en el json recibido no tiene las claves correctas como TYPE o USER
             msg_type = msg_json.get("TYPE")
-            if(msg_type=="RESULT"):                
+            if(msg_type=="RESULT"):   
+                game_id = msg_json.get("GAME_ID") 
+                tipos_jugadores = {1:"HUMANO",2:"JUGADOR TONTO",3:"JUGADOR MONTECARLO"}            
                 if(msg_json.get("RESULT"))=="EMPATE":
-                    print(f'La partida con id {msg_json.get("ID_GAME")} ha terminado en empate')
+                    print(f'La partida con id {game_id} ha terminado en empate')
+                    user1 = self.games[game_id][0][0]
+                    user1_type = self.games[game_id][0][2]
+                    user1_type = tipos_jugadores[user1_type]
+                    user2 = self.games[game_id][1][0]
+                    user2_type = self.games[game_id][1][2]
+                    user2_type = tipos_jugadores[user2_type]
+                    #Creamos el registro de la partida
+                    registro = f"{game_id} ; 'EMPATE' ; {user1} ; {user1_type} ; {user2} ; {user2_type}"
+                    #Lo guardamos en el archivo de texto
+                    with open("registro_partidas.txt","a") as archivo:
+                        archivo.write(registro)
+
                 elif (msg_json.get("RESULT")=="ANULADA") :
-                    print(f'La partida con id {msg_json.get("ID_GAME")} ha sido anulada')
+                    print(f'La partida con id {game_id} ha sido anulada')
                 else:
                     print(f'La partida  ha terminado con el jugador {msg_json.get("RESULT")} ganando')
+                    result = msg_json.get("RESULT")
+                    user_ganador = self.games[game_id][result][0]
+                    user_ganador_type = self.games[game_id][result][2]
+                    user_ganador_type = tipos_jugadores[user_ganador_type]
+                    result = 0 if result ==1 else 1
+                    user_perdedor = self.games[game_id][result][0]
+                    user_perdedor_type = self.games[game_id][result][2]
+                    user_perdedor_type = tipos_jugadores[user_perdedor_type]
+
+                    #Creamos el registro de la partida
+                    registro = f"{game_id} ; {user_ganador} ; {user_ganador_type} ; {user_perdedor} ; {user_perdedor_type}\n"  
+                    #Lo guardamos en el archivo de texto 
+                    with open("registro_partidas.txt","a") as archivo:
+                        archivo.write(registro)              
+                
+                #Borramos la partida de la lista de partidas
+                del self.games[msg_json.get("GAME_ID")]
+
                     
                 msg_response = {
                         "TYPE":"RESPONSE",
@@ -276,7 +308,8 @@ class Servidor:
                 #Caso de exito
                 else:
                     id_game_user = msg_json.get("ID_GAME") #Registramos en esta conexion el id del game
-                    self.games.get(id_game_user).append((user,msg_json.get("ADDR"))) #Registramos el user y addr donde los jugadores esperan a GAME
+                    user_type = msg_json.get("PLAYER") #Registramos el tipo de usuario que se ha unido
+                    self.games.get(id_game_user).append((user,msg_json.get("ADDR"),user_type)) #Registramos el user y addr donde los jugadores esperan a GAME
                     print(f'El jugador {user} se ha conectado a la partida {id_game_user}')
 
                     if(len(self.games.get(id_game_user))==1):
@@ -296,10 +329,10 @@ class Servidor:
                         if(platform.system()=="Windows"):
                             print("es windows")
                             
-                            subprocess.Popen(["python",".\servidorGAME_socket.py",addrJugador1[0],addrJugador1[1],addrJugador2[0],addrJugador2[1],addrServer[0],addrServer[1]],creationflags =subprocess.CREATE_NEW_CONSOLE)
+                            subprocess.Popen(["python",".\servidorGAME_socket.py",addrJugador1[0],addrJugador1[1],addrJugador2[0],addrJugador2[1],addrServer[0],addrServer[1],id_game_user],creationflags =subprocess.CREATE_NEW_CONSOLE)
                         else:
                             print("no es windows")
-                            subprocess.Popen(["python3","./servidorGAME_socket.py",addrJugador1[0],addrJugador1[1],addrJugador2[0],addrJugador2[1],addrServer[0],addrServer[1]])
+                            subprocess.Popen(["python3","./servidorGAME_socket.py",addrJugador1[0],addrJugador1[1],addrJugador2[0],addrJugador2[1],addrServer[0],addrServer[1],id_game_user])
                     msg_response = {
                         "TYPE":"RESPONSE",
                         "MESSAGE":"OK"

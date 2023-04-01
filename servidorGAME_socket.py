@@ -15,6 +15,8 @@ class Game_Server():
         self.port_j2 = int(sys.argv[4])
         self.ip_server = sys.argv[5]
         self.port_server = int(sys.argv[6])
+        self.game_id = sys.argv[7]
+
 
         #Lista con las direcciones de los dos jugadores
         self.gamers = []
@@ -95,11 +97,11 @@ class Game_Server():
         if(self.ganador != None):
         #SE ENVÍA AL SERVIDOR CENTRAL EL GANADOR DE LA PARTIDA (O NONE SI AMBOS PIERDEN)
             print("EL GANADOR DE LA PARTIDA ES ", self.ganador)
-            mensaje={"TYPE": "RESULT", "RESULT": self.ganador}
+            mensaje={"TYPE": "RESULT", "RESULT": self.ganador, "GAME_ID": self.game_id}
             self.socket_servidor_central.send(json.dumps(mensaje).encode())
         else:
             print("LA PARTIDA ACABA EN EMPATE")
-            mensaje={"TYPE": "RESULT", "RESULT": "EMPATE"}
+            mensaje={"TYPE": "RESULT", "RESULT": "EMPATE", "GAME_ID": self.game_id}
             self.socket_servidor_central.send(json.dumps(mensaje).encode())
 
         msj=json.loads(self.socket_servidor_central.recv(1024).decode())

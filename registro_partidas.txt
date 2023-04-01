@@ -1,0 +1,10 @@
+Game_ID [; EMPATE] ; Usuario ganador ; tipo jugador ganador ; Usuario perdedor ; tipo jugador perdedor
+n ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR TONTO
+n2 ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR TONTO
+n3 ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR TONTO
+n4 ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR TONTO
+monteCarlo ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO
+M3 ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO
+M2 ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO
+M5 ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO
+M4 ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO
