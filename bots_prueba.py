@@ -1,11 +1,13 @@
 import copy
 import json
 import random
+import threading
 from nodo_montecarlo import *
 import time
 import heapq
 import multiprocessing
-import os
+from queue import Queue 
+from collections import Counter
 
 
 class Molino():
@@ -380,7 +382,7 @@ class Molino():
                 sucesor_generado = random.choice(lista_sucesores)
 
             elif int(tipo_jugador) == 3:
-                sucesor_generado = self.desarrolla_arbol_montecarlo(None,50)
+                sucesor_generado = self.desarrolla_arbol_montecarlo(None,40)
             
             self.sucesor_enviado =  sucesor_generado
         
@@ -408,7 +410,7 @@ class Molino():
                 sucesor_generado = random.choice(lista_sucesores)
             
             elif int(tipo_jugador) == 3:
-                sucesor_generado = self.desarrolla_arbol_montecarlo(sucesor_rival,50)
+                sucesor_generado = self.desarrolla_arbol_montecarlo(sucesor_rival,40)
 
 
             self.sucesor_enviado =  sucesor_generado
@@ -428,8 +430,11 @@ class Molino():
         }
         return msg
 
-    def simula_partida(self, sucesor_inicial, jugador_nuestro, tipo_jugador1, tipo_jugador2):  #desde un sucesor cualquiera, simula el resultado de una partida con jugadores aleatorios
+    def simula_partida(self, sucesor_inicial, jugador_nuestro, tipo_jugador1, tipo_jugador2, cola_compartida):  #desde un sucesor cualquiera, simula el resultado de una partida con jugadores aleatorios
  
+        # LA COLA COMPARTIDA SÓLO SE USARÁ CUANDO LAS SIMULACIONES SEAN HECHAS DURANTE LA CONSTRUCIÓN DEL ÁRBOL DE MONTECARLO
+        # POR LOS HILOS GENERADOS
+
         jugador1 = Molino() 
         jugador2 = Molino()
         resultado = None
@@ -455,6 +460,9 @@ class Molino():
             resultado = 1
         else:
             resultado = -1
+
+        if cola_compartida != None:
+            cola_compartida.put(resultado)
 
         return resultado
 
@@ -497,81 +505,7 @@ class Molino():
             lista_aux.append(nodo_aux)
         
         return lista_aux,contador_Aux
-    '''
-    def aplica_fases_montecarlo(self, num_iteraciones, lista_nodos, contador_ids, nuestro_turno):
-        
-        contador_iteraciones = 0
-        for nodo in lista_nodos:
-            print("---------------")
-            print("ID: ",nodo.devuelve_id())
-            if nodo.devuelve_padre() != None:
-                print("PADRE: ",nodo.devuelve_padre().devuelve_id())
-            else:
-                print("PADRE: -")
-            print("VALOR: ",nodo.devuelve_valor())
-            print("N: ",nodo.devuelve_N())
-            print("Q: ",nodo.devuelve_Q())
-            print("Sucesor: ",nodo.devuelve_sucesor())
-            print("---------------")
-        
-        while num_iteraciones != contador_iteraciones and len(lista_nodos) != 0:
-
-            ### SELECCIÓN ###
-            nodo_seleccion = heapq.nlargest(1,lista_nodos, key= self.valora_nodo)[0] #ordeno por valor los nodos y saco el mejor
-            
-            ### EXPANSIÓN ###
-            nodo_expansion = Nodo_Montecarlo(contador_ids)
-            contador_ids.value += 1
-            nodo_expansion.establecer_padre(nodo_seleccion)
-            lista_nodos.append(nodo_expansion) 
-
-            if nodo_seleccion.devuelve_sucesor() != None:
-                lista_sucesores = self.crea_sucesores(nodo_seleccion.devuelve_sucesor().get('NEXT_STATE').get('TURN'),nodo_seleccion.devuelve_sucesor().get('NEXT_STATE'))
-            else:
-                lista_sucesores = self.crea_sucesores(self.state_inicial.get('TURN'),self.state_inicial)
-
-            sucesor_optimo = self.detecta_jugada_desarrollar(lista_sucesores, nodo_seleccion)
-            nodo_expansion.establecer_sucesor(sucesor_optimo)
-            
-            if (len(lista_sucesores) - len(nodo_seleccion.devuelve_sucesores_desarrollados())) == 0:
-                lista_nodos.pop(lista_nodos.index(nodo_seleccion)).devuelve_id()
-
-            ### SIMULACIÓN ###
-            resultado_simulacion = self.simula_partida(nodo_expansion.sucesor, nuestro_turno, 2, 2)
-
-            ### ACTUALIZACIÓN ###
-            nodo_actualizacion = nodo_expansion
-
-            while nodo_actualizacion != None:
-                
-                nodo_actualizacion.visitar()
-                nodo_actualizacion.añadir_resultado(resultado_simulacion)
-
-                if nodo_actualizacion.devuelve_padre() != None:
-                    if nodo_actualizacion.devuelve_padre().devuelve_mejor_hijo() == None:
-                        nodo_actualizacion.devuelve_padre().establecer_mejor_hijo(nodo_actualizacion)
-                    elif nodo_actualizacion.devuelve_padre().devuelve_mejor_hijo().devuelve_valor() < nodo_actualizacion.devuelve_valor():
-                        nodo_actualizacion.devuelve_padre().establecer_mejor_hijo(nodo_actualizacion)
-
-                nodo_actualizacion = nodo_actualizacion.devuelve_padre() # permite subir hasta la raíz
-
-            contador_iteraciones += 1
-
-
-        print("DESPUES")
-        for nodo in lista_nodos:
-            print("---------------")
-            print("ID: ",nodo.devuelve_id())
-            if nodo.devuelve_padre() != None:
-                print("PADRE: ",nodo.devuelve_padre().devuelve_id())
-            else:
-                print("PADRE: -")
-            print("VALOR: ",nodo.devuelve_valor())
-            print("N: ",nodo.devuelve_N())
-            print("Q: ",nodo.devuelve_Q())
-            print("Sucesor: ",nodo.devuelve_sucesor())
-            print("---------------")
-    '''     
+   
     def desarrolla_arbol_montecarlo(self, sucesor_inicial, max_iteraciones):
 
         contador_iteraciones = 0 
@@ -584,104 +518,105 @@ class Molino():
             porcentaje_fichas_colocadas = 1 - ((sucesor_inicial.get('NEXT_STATE').get('CHIPS')[0] + sucesor_inicial.get('NEXT_STATE').get('CHIPS')[1])/
                                            (self.state_inicial.get('CHIPS')[0] + self.state_inicial.get('CHIPS')[1]))
             porcentaje_cercania_fin = (minimo_fichas_jugador+1)/(fichas_peor_jugador+1)
-            #print((sucesor_inicial.get('NEXT_STATE').get('CHIPS')[0] + sucesor_inicial.get('NEXT_STATE').get('CHIPS')[1]),porcentaje_fichas_colocadas)
-            #print(fichas_peor_jugador,porcentaje_cercania_fin)
         
         else:
             nuestro_turno = 0
             porcentaje_fichas_colocadas = 0
             porcentaje_cercania_fin = 0
-            #print((self.state_inicial.get('CHIPS')[0] + self.state_inicial.get('CHIPS')[1]),porcentaje_fichas_colocadas)
-            #print(0,porcentaje_cercania_fin)
-        
+
         nodo_raiz = Nodo_Montecarlo(0)
         nodo_raiz.establecer_sucesor(sucesor_inicial)
         lista_nodos, sucesores_desarrollados = self.crear_nodos_sucesores_iniciales(nodo_raiz)
+        
         num_iteraciones = round(max_iteraciones * porcentaje_fichas_colocadas * porcentaje_cercania_fin)
-    
-        '''
-        manager = multiprocessing.Manager()
-        lista_compartida = manager.list(lista_nodos)
-        contador_compartido = multiprocessing.Value('i',sucesores_desarrollados)
-        num_procesos = 1
-        lista_procesos = []
+        num_iteraciones = max([num_iteraciones,sucesores_desarrollados])
 
-        # Creación de procesos y asignación del trabajo
-        for i in range(num_procesos):
-            procesoAux = multiprocessing.Process(target=self.aplica_fases_montecarlo, args=(num_iteraciones, lista_compartida, contador_compartido, nuestro_turno))
-            lista_procesos.append(procesoAux)
-            #self.aplica_fases_montecarlo(num_iteraciones, lista_nodos, nuestro_turno)
-        
-        # Inicio de los procesos
-        for procesoAux in lista_procesos:
-            procesoAux.start()
+        contador_iteraciones = sucesores_desarrollados
+     
+        while num_iteraciones+sucesores_desarrollados != contador_iteraciones and len(lista_nodos) != 0:
 
-        # Espera a que los procesos terminen
-        for procesoAux in lista_procesos:
-            procesoAux.join()'''
-
-        
-        while num_iteraciones != contador_iteraciones and len(lista_nodos) != 0:
-
-            ### SELECCIÓN ###
-            nodo_seleccion = heapq.nlargest(1,lista_nodos, key= self.valora_nodo)[0] #ordeno por valor los nodos y saco el mejor
-            
-            ### EXPANSIÓN ###
-            nodo_expansion = Nodo_Montecarlo(contador_iteraciones)
-            nodo_expansion.establecer_padre(nodo_seleccion)
-            lista_nodos.append(nodo_expansion) 
-
-            if nodo_seleccion.devuelve_sucesor() != None:
-                lista_sucesores = self.crea_sucesores(nodo_seleccion.devuelve_sucesor().get('NEXT_STATE').get('TURN'),nodo_seleccion.devuelve_sucesor().get('NEXT_STATE'))
-            else:
-                lista_sucesores = self.crea_sucesores(self.state_inicial.get('TURN'),self.state_inicial)
-
-            sucesor_optimo = self.detecta_jugada_desarrollar(lista_sucesores, nodo_seleccion)
-            nodo_expansion.establecer_sucesor(sucesor_optimo)
-            
-            if (len(lista_sucesores) - len(nodo_seleccion.devuelve_sucesores_desarrollados())) == 0:
-                lista_nodos.pop(lista_nodos.index(nodo_seleccion)).devuelve_id()
-
-            ### SIMULACIÓN ###
-            resultado_simulacion = self.simula_partida(nodo_expansion.sucesor, nuestro_turno, 2, 2)
-
-            ### ACTUALIZACIÓN ###
-            nodo_actualizacion = nodo_expansion
-
-            while nodo_actualizacion != None:
-                
-                nodo_actualizacion.visitar()
-                nodo_actualizacion.añadir_resultado(resultado_simulacion)
-
-                if nodo_actualizacion.devuelve_padre() != None:
-                    if nodo_actualizacion.devuelve_padre().devuelve_mejor_hijo() == None:
-                        nodo_actualizacion.devuelve_padre().establecer_mejor_hijo(nodo_actualizacion)
-                    elif nodo_actualizacion.devuelve_padre().devuelve_mejor_hijo().devuelve_valor() < nodo_actualizacion.devuelve_valor():
-                        nodo_actualizacion.devuelve_padre().establecer_mejor_hijo(nodo_actualizacion)
-
-                nodo_actualizacion = nodo_actualizacion.devuelve_padre() # permite subir hasta la raíz
-
+            self.fase_seleccion(lista_nodos, contador_iteraciones, nuestro_turno)
             contador_iteraciones += 1
         
-        #print("--------------------")
         #print(num_iteraciones)
-        #print("--------------------")
 
         if nodo_raiz.devuelve_mejor_hijo() == None: #en caso de que estemos al comienzo de la partida, se elige un sucesor del nodo inicial aleatoriamente (da igual lo que elijas)
             return random.choice(lista_nodos).devuelve_sucesor() # en la lista de nodos sólo habrá sucesores del nodo inicial
 
         return nodo_raiz.devuelve_mejor_hijo().devuelve_sucesor()
     
+    def fase_seleccion(self, lista_nodos, contador_iteraciones, nuestro_turno):
+        ### SELECCIÓN ###
+        nodo_seleccion = heapq.nlargest(1,lista_nodos, key= self.valora_nodo)[0] #ordeno por valor los nodos y saco el mejor
+        self.fase_expansion(lista_nodos, nodo_seleccion, contador_iteraciones, nuestro_turno)
+        
+    def fase_expansion(self, lista_nodos, nodo_seleccion, contador_iteraciones, nuestro_turno):
+        ### EXPANSIÓN ###
+        nodo_expansion = Nodo_Montecarlo(contador_iteraciones)
+        nodo_expansion.establecer_padre(nodo_seleccion)
+        lista_nodos.append(nodo_expansion) 
+
+        if nodo_seleccion.devuelve_sucesor() != None:
+            lista_sucesores = self.crea_sucesores(nodo_seleccion.devuelve_sucesor().get('NEXT_STATE').get('TURN'),nodo_seleccion.devuelve_sucesor().get('NEXT_STATE'))
+        else:
+            lista_sucesores = self.crea_sucesores(self.state_inicial.get('TURN'),self.state_inicial)
+
+        sucesor_optimo = self.detecta_jugada_desarrollar(lista_sucesores, nodo_seleccion)
+        nodo_expansion.establecer_sucesor(sucesor_optimo)
+        
+        if (len(lista_sucesores) - len(nodo_seleccion.devuelve_sucesores_desarrollados())) == 0:
+            lista_nodos.pop(lista_nodos.index(nodo_seleccion)).devuelve_id()
+
+        self.fase_simulacion(nodo_expansion, nuestro_turno)
+
+    def fase_simulacion(self, nodo_expansion, nuestro_turno):
+        ### SIMULACIÓN ### (se crean unos cuantos hilos para realizar ese número de simulaciones en paralelo. Después se cogerá el valor más repetido)
+        '''
+        cola_compartida_simulaciones = Queue()
+        num_hilos_simulaciones = 4
+        lista_hilos = []
+        counter = Counter()
+
+        for i in range(num_hilos_simulaciones):
+            hiloAux = threading.Thread(target=self.simula_partida, args=(nodo_expansion.sucesor, nuestro_turno, 2, 2, cola_compartida_simulaciones,))
+            hiloAux.start()
+            lista_hilos.append(hiloAux)
+
+        for hiloAux in lista_hilos:
+            hiloAux.join()
+        
+        while not cola_compartida_simulaciones.empty():
+            counter.update([cola_compartida_simulaciones.get()]) #metemos todos los resultados aquí
+        resultado_simulacion = counter.most_common(1)[0][0] # devuelve el resultado que más se repite'''
+        resultado_simulacion = self.simula_partida(nodo_expansion.sucesor, nuestro_turno, 2, 2, None)
+        self.fase_actalizacion(nodo_expansion, resultado_simulacion)
+
+    def fase_actalizacion(self, nodo_expansion, resultado_simulacion):
+        ### ACTUALIZACIÓN ###
+        nodo_actualizacion = nodo_expansion
+
+        while nodo_actualizacion != None:
+            
+            nodo_actualizacion.visitar()
+            nodo_actualizacion.añadir_resultado(resultado_simulacion)
+
+            if nodo_actualizacion.devuelve_padre() != None:
+                if nodo_actualizacion.devuelve_padre().devuelve_mejor_hijo() == None:
+                    nodo_actualizacion.devuelve_padre().establecer_mejor_hijo(nodo_actualizacion)
+                elif nodo_actualizacion.devuelve_padre().devuelve_mejor_hijo().devuelve_valor() < nodo_actualizacion.devuelve_valor():
+                    nodo_actualizacion.devuelve_padre().establecer_mejor_hijo(nodo_actualizacion)
+
+            nodo_actualizacion = nodo_actualizacion.devuelve_padre() # permite subir hasta la raíz
 
 if __name__ == "__main__":
     
     jugador1 = Molino()
     inicio = time.time()
     contador_victorias = 0
-    num_partidas = 1
+    num_partidas = 10
 
     for i in range(num_partidas):
-        if jugador1.simula_partida(None,0,3,2) == 1:
+        if jugador1.simula_partida(None,0,3,2,None) == 1:
             #print("GANADOR: JUGADOR 0")
             contador_victorias += 1
         #else:
