@@ -73,7 +73,7 @@ class Servidor:
                     user_perdedor_type = tipos_jugadores[user_perdedor_type]
 
                     #Creamos el registro de la partida
-                    registro = f"{game_id} ; {user_ganador} ; {user_ganador_type} ; {user_perdedor} ; {user_perdedor_type}\n"  
+                    registro = f"{game_id} ; 'OK' ; {user_ganador} ; {user_ganador_type} ; {user_perdedor} ; {user_perdedor_type}\n"  
                     #Lo guardamos en el archivo de texto 
                     with open("registro_partidas.txt","a") as archivo:
                         archivo.write(registro)              
