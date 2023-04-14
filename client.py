@@ -247,12 +247,13 @@ class Client:
                 print("\nSeleccione una opción: ")
                 print("1. Jugador manual")
                 print("2. Jugador torpe (al azar)")
-                print("3. Jugador perfecto (árbol de búsqueda de montecarlo)")
+                print("3. Jugador perfecto V1 (árbol de búsqueda de montecarlo)")
+                print("4. Jugador perfecto V2 (árbol de búsqueda de montecarlo)")
                 opcion = input()
 
                 if opcion.isdigit():
                     opcion = int(opcion)
-                    if opcion in [1,2,3]:
+                    if opcion in [1,2,3,4]:
                         self.jugador=opcion
                         correcto=True
                     else:
