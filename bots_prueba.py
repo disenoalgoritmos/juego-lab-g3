@@ -52,7 +52,7 @@ if __name__ == "__main__":
     num_iteraciones = 50
     molino = Molino()
     contador_victorias = 0
-    num_partidas = 1
+    num_partidas = 20
     inicio = time.time()
     inicio_aux = time.time()
 

@@ -130,10 +130,10 @@ class Jugador_Montecarlo_V2(Jugador):
             with multiprocessing.Pool() as pool:
                 resultados = [pool.apply(self.simula_partida_aleatoria, args=(nodo_descendiente.devuelve_sucesor(),nuestro_turno)) for i in range(self.num_procesos)]
 
-            counter = Counter(resultados)
-            valor_mas_comun = counter.most_common(1)[0][0]
+            #counter = Counter(resultados)
+            #valor_mas_comun = counter.most_common(1)[0][0]
 
-            self.backup(nodo_descendiente, valor_mas_comun, 1)
+            self.backup(nodo_descendiente, sum(resultados), len(resultados))
             contador_iteraciones += 1
         
         '''for hijo in nodo_raiz.devuelve_lista_hijos():
