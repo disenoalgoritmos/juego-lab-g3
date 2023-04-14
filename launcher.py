@@ -29,7 +29,7 @@ async def launcher(message):
     #crearPartidas('partidasNacho', 20)
 
     numPartidas = 20
-    nombre = 'partidasNacho'
+    nombre = 'partidasNacho75Simulaciones'
     for i in range(numPartidas):
         print(f'Creando partida {i} de {numPartidas}')
         message_New = {
@@ -48,12 +48,13 @@ async def launcher(message):
     #se espera a recibir el mensaje de partida creada y se imprime por pantalla
 
     puertos = range(49153, 65535)
-    for i in range(20):
+    for i in range(numPartidas):
+        print(f'Lanzando partida {i} de {numPartidas}')
         #Jugador tonto se une a la partida
         puerto=random.choice(puertos)
         msg_Join = {
             "TYPE":"JOIN_GAME",
-            "ID_GAME":f'partidasNacho{i}',
+            "ID_GAME":f'{nombre}{i}',
             "ADDR":['127.0.0.1', str(puerto)], 
             "PLAYER": 2}
         message = json.dumps(msg_Join)
@@ -73,7 +74,7 @@ async def launcher(message):
         puerto=random.choice(puertos)
         msg_Join = {
             "TYPE":"JOIN_GAME",
-            "ID_GAME":f'partidasNacho{i}',
+            "ID_GAME":f'{nombre}{i}',
             "ADDR":['127.0.0.1', str(puerto)], 
             "PLAYER": 3}
         message = json.dumps(msg_Join)
@@ -89,8 +90,8 @@ async def launcher(message):
         subprocess.Popen(comando, creationflags =subprocess.CREATE_NEW_CONSOLE)
         nextPartida = False
         while nextPartida == False:
-            print(f'Buscando partida {i}')
-            nextPartida = buscarPartida(f'partidasNacho{i}')
+            #print(f'Buscando partida {i}')
+            nextPartida = buscarPartida(f'{nombre}{i}')
             time.sleep(1)
 
 
