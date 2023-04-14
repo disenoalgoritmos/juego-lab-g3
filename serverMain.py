@@ -63,7 +63,7 @@ class Servidor:
                 elif (msg_json.get("RESULT")=="ANULADA") :
                     print(f'La partida con id {game_id} ha sido anulada')
                 else:
-                    print(f'La partida  ha terminado con el jugador {msg_json.get("RESULT")} ganando')
+                    print(f'La partida ha terminado con el jugador {msg_json.get("RESULT")} ganando')
                     tiempo = time.time() - self.games[game_id][2]
                     #tiempo en minutos y segundos
                     tiempo = time.strftime("%M:%S", time.gmtime(tiempo))
