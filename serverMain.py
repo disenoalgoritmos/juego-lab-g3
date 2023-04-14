@@ -3,6 +3,7 @@ import threading
 import json
 import platform
 import subprocess
+import time
 
 
 
@@ -63,6 +64,10 @@ class Servidor:
                     print(f'La partida con id {game_id} ha sido anulada')
                 else:
                     print(f'La partida  ha terminado con el jugador {msg_json.get("RESULT")} ganando')
+                    tiempo = time.time() - self.games[game_id][2]
+                    #tiempo en minutos y segundos
+                    tiempo = time.strftime("%M:%S", time.gmtime(tiempo))
+                    print(f"La partida ha durado {tiempo} segundos")
                     result = msg_json.get("RESULT")
                     user_ganador = self.games[game_id][result][0]
                     user_ganador_type = self.games[game_id][result][2]
@@ -73,7 +78,7 @@ class Servidor:
                     user_perdedor_type = tipos_jugadores[user_perdedor_type]
 
                     #Creamos el registro de la partida
-                    registro = f"{game_id} ; 'OK' ; {user_ganador} ; {user_ganador_type} ; {user_perdedor} ; {user_perdedor_type}\n"  
+                    registro = f"{game_id} ; 'OK' ; {user_ganador} ; {user_ganador_type} ; {user_perdedor} ; {user_perdedor_type} ; {tiempo}\n"  
                     #Lo guardamos en el archivo de texto 
                     with open("registro_partidas.txt","a") as archivo:
                         archivo.write(registro)              
@@ -323,6 +328,7 @@ class Servidor:
 
                         '''
                         game = self.games.get(id_game_user)
+                        game.append(time.time())
                         addrJugador1=game[0][1]
                         addrJugador2=game[1][1]
                         addrServer = ["127.0.0.1","8909"] 

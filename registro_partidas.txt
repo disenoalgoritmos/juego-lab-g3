@@ -9,3 +9,6 @@ M2 ; nacho ; 'OK' ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO
 M5 ; nacho ; 'OK' ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO
 M4 ; nacho ; 'OK' ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO
 aleatorio ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR TONTO
+1 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO ; 02:50
+2 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 01:41
+3 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 01:21
