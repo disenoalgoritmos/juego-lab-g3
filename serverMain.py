@@ -45,7 +45,7 @@ class Servidor:
             msg_type = msg_json.get("TYPE")
             if(msg_type=="RESULT"):   
                 game_id = msg_json.get("GAME_ID") 
-                tipos_jugadores = {1:"HUMANO",2:"JUGADOR TONTO",3:"JUGADOR MONTECARLO"}            
+                tipos_jugadores = {1:"HUMANO",2:"JUGADOR TONTO",3:"JUGADOR MONTECARLO V1",4:"JUGADOR MONTECARLO V2"}            
                 if(msg_json.get("RESULT"))=="EMPATE":
                     print(f'La partida con id {game_id} ha terminado en empate')
                     user1 = self.games[game_id][0][0]
