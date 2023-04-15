@@ -153,16 +153,14 @@ class Jugador():
 
         casillas_validas = []
 
-        if posicion_actual < 8 and (posicion_actual + 8) in state.get('FREE'):
+        if ((posicion_actual < 8 and (posicion_actual + 8) in state.get('FREE')) or 
+            (posicion_actual > 8 and posicion_actual < 16 and (posicion_actual + 8) in state.get('FREE'))):
             casillas_validas.append(posicion_actual + 8)
-        elif (posicion_actual > 8 and posicion_actual < 16 #podría ponerse posicion_actual/8 == 1
-        and (posicion_actual + 8) in state.get('FREE')):
-            casillas_validas.append(posicion_actual + 8) 
-        elif (posicion_actual > 8 and posicion_actual < 16 
-        and (posicion_actual - 8) in state.get('FREE')):
+
+        elif ((posicion_actual > 8 and posicion_actual < 16 and (posicion_actual - 8) in state.get('FREE')) or 
+              (posicion_actual > 16 and (posicion_actual - 8) in state.get('FREE'))):
             casillas_validas.append(posicion_actual - 8)
-        elif posicion_actual > 16 and (posicion_actual - 8) in state.get('FREE'):
-            casillas_validas.append(posicion_actual - 8)
+        
         return casillas_validas
 
     def devuelve_fichas_a_mover(self,state, turno):
@@ -282,13 +280,9 @@ class Jugador():
         #comprobar que has perdido con el state que recibas (después de verificar su validez)
         if state_analizar.get('CHIPS')[0] == 0 and state_analizar.get('CHIPS')[1] == 0:
             if len(state_analizar.get('GAMER')[state_analizar.get('TURN')]) <= 2:
-                #print("\n<<< [FIN DEL JUEGO] ¡El jugador '" + str(state_analizar.get('TURN')) + "' posee 2 o menos fichas en su poder >>>")
-                #print("\n-----------------------------------------------------------------------------------------------------------------------------\n")    
                 return True
             
             elif len(self.devuelve_fichas_a_mover(state_analizar,state_analizar.get('TURN'))) == 0:
-                #print("\n<<< [FIN DEL JUEGO] ¡El jugador " + str(state_analizar.get('TURN')) + " no puede mover ninguna ficha en juego! >>>")
-                #print("\n-----------------------------------------------------------------------------------------------------------------------------\n")    
                 return True
 
     def devuelve_mensaje_RESPONSE(self, message):

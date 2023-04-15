@@ -1,6 +1,8 @@
 
-from collections import Counter
+#from collections import Counter
 import multiprocessing
+import concurrent.futures
+import sys
 from Jugador_Aleatorio import Jugador_Aleatorio
 from nodo_montecarlo import Nodo_Montecarlo
 from Jugador import Jugador
@@ -24,12 +26,12 @@ class Jugador_Montecarlo_V2(Jugador):
         
         else:
 
-            if self.sucesor_enviado != None and not super().valida_estado_inicial_rival(self.sucesor_enviado.get('NEXT_STATE'),sucesor_rival) and not super().valida_jugada(sucesor_rival): 
+            '''if self.sucesor_enviado != None and not super().valida_estado_inicial_rival(self.sucesor_enviado.get('NEXT_STATE'),sucesor_rival) and not super().valida_jugada(sucesor_rival): 
                 return  "Acción incorrecta",None
             elif self.sucesor_enviado == None and not super().valida_jugada(sucesor_rival): #aunque no puedas comparar con tu anterior jugada porque estés en el segundo turno, al menos compruebas que la acción sea correcta
-                return "Acción incorrecta",None
+                return "Acción incorrecta",None'''
             
-            if self.comprueba_condiciones_derrota(sucesor_rival.get("NEXT_STATE")):
+            if super().comprueba_condiciones_derrota(sucesor_rival.get("NEXT_STATE")):
                 return "Derrota",None
 
             sucesor_generado = self.uctsearch(sucesor_rival,self.num_iteraciones_montecarlo)
@@ -124,12 +126,20 @@ class Jugador_Montecarlo_V2(Jugador):
         #num_iteraciones_totales = super().calcula_iteraciones(sucesor_inicial,num_iteraciones_totales)
 
         while contador_iteraciones != num_iteraciones_totales:
-
+            
+            resultados , tareas = [], []
             nodo_descendiente = self.treepolicy(nodo_raiz)
            
-            with multiprocessing.Pool() as pool:
-                resultados = [pool.apply(self.simula_partida_aleatoria, args=(nodo_descendiente.devuelve_sucesor(),nuestro_turno)) for i in range(self.num_procesos)]
+            #with multiprocessing.Pool() as pool:
+            #    resultados = [pool.apply(self.simula_partida_aleatoria, args=(nodo_descendiente.devuelve_sucesor(),nuestro_turno)) for i in range(self.num_procesos)]
 
+            with concurrent.futures.ProcessPoolExecutor(max_workers=self.num_procesos) as executor:
+                for i in range(self.num_procesos):
+                    tareas.append(executor.submit(self.simula_partida_aleatoria, nodo_descendiente.devuelve_sucesor(),nuestro_turno))
+
+            for tarea in concurrent.futures.as_completed(tareas):
+                resultados.append(tarea.result())
+            
             #counter = Counter(resultados)
             #valor_mas_comun = counter.most_common(1)[0][0]
 

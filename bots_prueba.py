@@ -10,13 +10,10 @@ from Jugador_Montecarlo_V2 import Jugador_Montecarlo_V2
 class Molino():
 
     def simula_partida(self, sucesor_inicial, jugador_nuestro, tipo_jugador1, tipo_jugador2, numero_procesos, numero_iteraciones):  #desde un sucesor cualquiera, simula el resultado de una partida con jugadores aleatorios
-        
-        
-        jugador1 = self.devuelve_jugador(tipo_jugador1, num_procesos, numero_iteraciones)
-        jugador2 = self.devuelve_jugador(tipo_jugador2, num_procesos, numero_iteraciones)
-        ganador = None
-        seguir = True
-        sucesor_2 = sucesor_inicial
+          
+        jugador1 = self.devuelve_jugador(tipo_jugador1, numero_procesos, numero_iteraciones)
+        jugador2 = self.devuelve_jugador(tipo_jugador2, numero_procesos, numero_iteraciones)
+        ganador , seguir, sucesor_2 = None, True, sucesor_inicial
 
         while seguir:
 
@@ -49,10 +46,10 @@ class Molino():
 if __name__ == "__main__":
     
     num_procesos = multiprocessing.cpu_count()
-    num_iteraciones = 50
+    num_iteraciones = 75
     molino = Molino()
     contador_victorias = 0
-    num_partidas = 20
+    num_partidas = 5
     inicio = time.time()
     inicio_aux = time.time()
 
