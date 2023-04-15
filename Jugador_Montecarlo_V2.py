@@ -2,7 +2,6 @@
 #from collections import Counter
 import multiprocessing
 import concurrent.futures
-import sys
 from Jugador_Aleatorio import Jugador_Aleatorio
 from nodo_montecarlo import Nodo_Montecarlo
 from Jugador import Jugador
