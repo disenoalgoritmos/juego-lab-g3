@@ -52,12 +52,12 @@ if __name__ == "__main__":
     num_iteraciones = 75
     molino = Molino()
     contador_victorias = 0
-    num_partidas = 5
+    num_partidas = 1
     inicio = time.time()
     inicio_aux = time.time()
 
     for i in range(num_partidas):
-        if molino.simula_partida(None,0,5,2,num_procesos, num_iteraciones) == 1:
+        if molino.simula_partida(None,0,5,5,num_procesos, num_iteraciones) == 1:
             contador_victorias += 1
         print("-----------------------------------")
         print("FIN PARTIDA",i+1)

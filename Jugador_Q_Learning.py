@@ -22,6 +22,7 @@ class Jugador_Q_Learning(Jugador):
         self.gamma = 0.8
         self.alpha = 0.1
         self.tabla_Q = None
+        self.lineas_añadidas = 0
 
     def cargar_tabla_Q(self, ruta):
         with open(ruta) as archivo:
@@ -120,6 +121,7 @@ class Jugador_Q_Learning(Jugador):
         # HAY QUE COMPROBAR SI NO EXISTE LA ENTRADA EN LA TABLA DE UN ESTADO-ACCION PARA CREARLA Y PONERLE 0 DE VALOR
         if not hash_md5 in self.tabla_Q.keys():
             self.tabla_Q [hash_md5] = 0
+            self.lineas_añadidas += 1
 
         self.tabla_Q[hash_md5] = self.tabla_Q[hash_md5] + self.alpha * (self.valora_estado(accion, estado_siguiente) + self.gamma * maximo_valor_estado_objetivo - self.tabla_Q[hash_md5])
         
@@ -173,6 +175,7 @@ class Jugador_Q_Learning(Jugador):
             if len(lista_estado_acciones_codificada) != 0:
                 for clave in lista_md5: #añado de una todas las claves accion,estado viables
                     self.tabla_Q[clave] = 0
+                self.lineas_añadidas += len(lista_md5)
                 return self.devuelve_accion_posible(estado_origen), 0
             else:
                 return None, 0
@@ -213,7 +216,7 @@ class Jugador_Q_Learning(Jugador):
         self.calcula_valor_Q(estado_origen, accion_desde_origen, maximo_valor_Q_estado_objetivo, estado_objetivo)
                 
     def genera_movimiento(self,sucesor_rival):
-
+        
         if sucesor_rival == None: #es el primer turno
             
             estado_origen = self.state_inicial
@@ -225,12 +228,13 @@ class Jugador_Q_Learning(Jugador):
         
         else:
 
-            self.aprende_de_sucesor(sucesor_rival)
             estado_origen = sucesor_rival.get("NEXT_STATE")
             
             if self.sucesor_enviado == None:
                 self.establece_turno(sucesor_rival.get('NEXT_STATE').get('TURN'))
-                
+            
+            self.aprende_de_sucesor(sucesor_rival)
+
             if self.sucesor_enviado != None and not super().valida_estado_inicial_rival(self.sucesor_enviado.get('NEXT_STATE'),sucesor_rival) and not super().valida_jugada(sucesor_rival): 
                 return  "Acción incorrecta",None
             elif self.sucesor_enviado == None and not super().valida_jugada(sucesor_rival): #aunque no puedas comparar con tu anterior jugada porque estés en el segundo turno, al menos compruebas que la acción sea correcta
@@ -244,7 +248,8 @@ class Jugador_Q_Learning(Jugador):
             sucesor_generado = super().devuelve_sucesor(estado_origen,accion_realizar,super().simula_movimiento_sobre_estado(estado_origen,accion_realizar))
             
             self.sucesor_enviado =  sucesor_generado
-            
+            self.aprende_de_sucesor(sucesor_generado)
+
             if super().comprueba_condiciones_derrota(self.sucesor_enviado.get('NEXT_STATE')): #el estado al que llegaremos nos hace ganar
                 self.sobreescribe_tabla_Q(self.ruta_archivo)
                 return "Victoria",sucesor_generado
@@ -259,7 +264,7 @@ class Jugador_Q_Learning(Jugador):
 if __name__ == "__main__":
     import time
 
-    tiempo_ejecucion = 30 * 60  # N minutos x 60 segundos/minuto
+    tiempo_ejecucion = 15 * 60  # N minutos x 60 segundos/minuto
     tiempo_inicial = time.time()
     contador_iteraciones = 0
 
@@ -267,9 +272,12 @@ if __name__ == "__main__":
 
         jugador = Jugador_Q_Learning()
         jugador.establece_turno(0)
-        jugador.realiza_episodios(100)
+        jugador.realiza_episodios(50)
+        print("LINEAS AÑADIDAS EN EL ARCHIVO 0 :", jugador.lineas_añadidas)
+        jugador.lineas_añadidas = 0
         jugador.establece_turno(1)
-        jugador.realiza_episodios(100)
+        jugador.realiza_episodios(50)
+        print("LINEAS AÑADIDAS EN EL ARCHIVO 1 :", jugador.lineas_añadidas)
         contador_iteraciones += 1
         print("TIEMPO EN MINUTOS",(time.time() - tiempo_inicial)/60)
         print("ITERACIONES HECHAS: ", contador_iteraciones)
