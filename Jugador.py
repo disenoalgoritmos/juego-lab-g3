@@ -207,7 +207,8 @@ class Jugador():
         if move.get('POS_INIT') != -1:
             state_esperado['GAMER'][state.get('TURN')].remove(move.get('POS_INIT'))
             state_esperado['FREE'].append(move.get('POS_INIT'))
-        
+            
+                        
         state_esperado['GAMER'][state.get('TURN')].append(move.get('NEXT_POS'))
         state_esperado['FREE'].remove(move.get('NEXT_POS'))
 

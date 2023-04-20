@@ -5,6 +5,7 @@ from Jugador_Manual import Jugador_Manual
 from Jugador_Aleatorio import Jugador_Aleatorio
 from Jugador_Montecarlo_V1 import Jugador_Montecarlo_V1
 from Jugador_Montecarlo_V2 import Jugador_Montecarlo_V2
+from Jugador_Q_Learning import Jugador_Q_Learning
 
 
 class Molino():
@@ -42,6 +43,8 @@ class Molino():
             return Jugador_Montecarlo_V1(numero_procesos,numero_iteraciones)
         elif tipo_jugador == 4:
             return Jugador_Montecarlo_V2(numero_procesos,numero_iteraciones)
+        elif tipo_jugador == 5:
+            return Jugador_Q_Learning()
 
 if __name__ == "__main__":
     
@@ -54,7 +57,7 @@ if __name__ == "__main__":
     inicio_aux = time.time()
 
     for i in range(num_partidas):
-        if molino.simula_partida(None,0,4,2,num_procesos, num_iteraciones) == 1:
+        if molino.simula_partida(None,0,5,2,num_procesos, num_iteraciones) == 1:
             contador_victorias += 1
         print("-----------------------------------")
         print("FIN PARTIDA",i+1)

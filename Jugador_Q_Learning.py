@@ -1,20 +1,23 @@
 
 import json
 import random
+import sys
 from Jugador import Jugador
 from Jugador_Aleatorio import Jugador_Aleatorio
+import hashlib
 
-'''PARA PODER REALIZAR DE FORMA CORRECTA LA TABLA Q, ES NECESARIO QUE EL JUGADOR PIENSE QUE SU TURNO SIEMPRE SERÁ EL 0,
-   EN CASO CONTRARIO LA TABLA SE CONTRADECIRÍA AL EJECUTAR VARIAS VECES EL PROGRAMA SI LE TOCAN DIFERENTES TURNOS'''
+'''PARA PODER REALIZAR DE FORMA CORRECTA EL Q-LEARNING, ES NECESARIO CREAR UNA TABLA PARA CADA TURNO,
+   EN CASO CONTRARIO LA TABLA SE CONTRADIRÍA AL EJECUTAR VARIAS VECES EL PROGRAMA SI LE TOCAN DIFERENTES TURNOS'''
 
 class Jugador_Q_Learning(Jugador):
 
     def __init__(self):
 
-        self.archivo_0 = "tabla_Q_turno_0.json"
-        self.archivo_1 = "tabla_Q_turno_1.json"
+        self.archivo_0 = "tabla_Q_turno_0.json" #"/content/drive/My Drive/tabla_Q_turno_0.json"
+        self.archivo_1 = "tabla_Q_turno_1.json" #"/content/drive/My Drive/tabla_Q_turno_1.json"
         self.ruta_archivo = None
-        self.state_inicial = super().cargar_datos("target.json")
+        self.state_inicial = super().cargar_datos("target.json") #super().cargar_datos("/content/drive/My Drive/target.json")
+        self.sucesor_enviado = None
         self.turno = None
         self.gamma = 0.8
         self.alpha = 0.1
@@ -65,37 +68,33 @@ class Jugador_Q_Learning(Jugador):
         
         return estado_final
 
-    def valora_estado(self, estado_valorar):
+    def valora_estado(self, accion, estado_valorar):
 
         recompensa = -1
         
-        if self.turno == estado_valorar.get('TURN') and super().comprueba_condiciones_derrota(estado_valorar):
-            recompensa = -100
-        if self.turno != estado_valorar.get('TURN') and super().comprueba_condiciones_derrota(estado_valorar):
-            recompensa = 100
+        if self.turno == estado_valorar.get('TURN'):
+            if super().comprueba_condiciones_derrota(estado_valorar):
+                recompensa = -100
+            elif accion.get('KILL') != -1:
+                recompensa = -30
+        elif self.turno != estado_valorar.get('TURN'):
+            if super().comprueba_condiciones_derrota(estado_valorar):
+                recompensa = 100
+            elif accion.get('KILL') != -1:
+                recompensa = 30
 
         return recompensa
     
     def devuelve_accion_posible(self, estado_origen):
 
         lista_sucesores = super().crea_sucesores(estado_origen.get('TURN'), estado_origen)
-        return random.choice(lista_sucesores).get('MOVE')
-
-    def devuelve_mejor_valor_Q_estado(self, estado_origen):
-
-        mejor_valor = None
-
-        for clave, valor in self.tabla_Q.items():
-            if clave[0] == estado_origen:
-                if mejor_valor == None:
-                    mejor_valor = valor
-                elif valor > mejor_valor:
-                    mejor_valor = valor
-
-        if mejor_valor == None:
-            mejor_valor = 0
-
-        return mejor_valor
+        
+        try:
+            return random.choice(lista_sucesores).get('MOVE')
+        except IndexError:
+            print("HA DADO ERROR AL BUSCAR LOS SUCESORES DE", estado_origen)
+            print(lista_sucesores)
+            sys.exit()
 
     def comprueba_estado_terminal(self, state_analizar):
         
@@ -115,14 +114,18 @@ class Jugador_Q_Learning(Jugador):
         cadena_estado = json.dumps(estado_origen)
         cadena_accion = json.dumps(accion)
         indice = str((cadena_estado, cadena_accion))
+        hash_object = hashlib.md5(indice.encode())
+        hash_md5 = hash_object.hexdigest()
 
         # HAY QUE COMPROBAR SI NO EXISTE LA ENTRADA EN LA TABLA DE UN ESTADO-ACCION PARA CREARLA Y PONERLE 0 DE VALOR
-        if not indice in self.tabla_Q.keys():
-            self.tabla_Q [indice] = 0
-        
-        self.tabla_Q[indice] = self.tabla_Q[indice] + self.alpha * (self.valora_estado(estado_siguiente) + self.gamma * maximo_valor_estado_objetivo - self.tabla_Q[indice])
+        if not hash_md5 in self.tabla_Q.keys():
+            self.tabla_Q [hash_md5] = 0
 
-    def realiza_episodios(self, num_episodios):
+        self.tabla_Q[hash_md5] = self.tabla_Q[hash_md5] + self.alpha * (self.valora_estado(accion, estado_siguiente) + self.gamma * maximo_valor_estado_objetivo - self.tabla_Q[hash_md5])
+        
+    def establece_turno(self, turno):
+        
+        self.turno = turno
 
         if self.turno == 0:
             self.ruta_archivo = self.archivo_0
@@ -130,33 +133,143 @@ class Jugador_Q_Learning(Jugador):
             self.ruta_archivo = self.archivo_1
         self.tabla_Q = self.cargar_tabla_Q(self.ruta_archivo)
 
+    def devuelve_estado_accion_posibles_codificados(self, estado_origen):
+
+        lista_sucesores = super().crea_sucesores(estado_origen.get('TURN'), estado_origen)
+        lista_estado_acciones = []
+        lista_cadenas = []
+
+        for sucesor in lista_sucesores:
+            lista_estado_acciones.append((sucesor.get('STATE'),sucesor.get('MOVE')))
+        
+        for elemento in lista_estado_acciones:
+            lista_cadenas.append(str((json.dumps(elemento[0]), json.dumps(elemento[1]))))
+        
+        return lista_cadenas
+    
+    def traduce_md5_lista(self, lista):
+
+        lista_devolver = []
+        for elemento in lista:
+            hash_object = hashlib.md5(elemento.encode())
+            lista_devolver.append(hash_object.hexdigest())
+
+        return lista_devolver
+
+    def devuelve_mejor_accion_y_valor(self, estado_origen, lista_estado_acciones_codificada):
+
+        mejor_accion = None
+        mejor_valor = None
+        lista_md5 = self.traduce_md5_lista(lista_estado_acciones_codificada)
+
+        for clave,valor in self.tabla_Q.items():
+            
+            if clave in lista_md5 and (mejor_valor == None or mejor_valor < valor):
+                mejor_valor = valor
+                cadena_estado_accion = lista_estado_acciones_codificada[lista_md5.index(clave)]  
+                mejor_accion = cadena_estado_accion[cadena_estado_accion.index('}')+5:-2]
+        
+        if mejor_accion ==None:
+            if len(lista_estado_acciones_codificada) != 0:
+                for clave in lista_md5: #añado de una todas las claves accion,estado viables
+                    self.tabla_Q[clave] = 0
+                return self.devuelve_accion_posible(estado_origen), 0
+            else:
+                return None, 0
+            
+        
+        return json.loads(mejor_accion), mejor_valor
+    
+    def realiza_episodios(self, num_episodios):
+
         contador_episodios = 0
 
         while contador_episodios != num_episodios:
             
             estado_origen = self.genera_estado_aleatorio()
-
-            while not self.comprueba_estado_terminal(estado_origen):
-
+            while super().comprueba_condiciones_derrota(estado_origen): # me aseguro de que el estado no sea terminal
+                estado_origen = self.genera_estado_aleatorio()
+  
+            while not super().comprueba_condiciones_derrota(estado_origen):
+                #print("ESTADO ORIGEN", estado_origen)
                 accion_desde_origen =  self.devuelve_accion_posible(estado_origen)
+                #print("ACCION DESDE ORIGEN", accion_desde_origen)
                 estado_objetivo = super().simula_movimiento_sobre_estado(estado_origen,accion_desde_origen)
-                maximo_valor_Q_estado_objetivo = self.devuelve_mejor_valor_Q_estado(estado_objetivo)
+                #print("ESTADO OBJETIVO", estado_objetivo)
+                maximo_valor_Q_estado_objetivo = self.devuelve_mejor_accion_y_valor(estado_objetivo,self.devuelve_estado_accion_posibles_codificados(estado_objetivo))[1]
                 self.calcula_valor_Q(estado_origen, accion_desde_origen, maximo_valor_Q_estado_objetivo, estado_objetivo)
                 estado_origen = estado_objetivo
 
             contador_episodios += 1
-
-        self.sobreescribe_tabla_Q(self.ruta_archivo)
         
+        self.sobreescribe_tabla_Q(self.ruta_archivo)
+
+    def aprende_de_sucesor(self, sucesor_rival):
+
+        estado_origen = sucesor_rival.get('STATE')
+        accion_desde_origen = sucesor_rival.get('MOVE')
+        estado_objetivo = sucesor_rival.get('NEXT_STATE')
+        maximo_valor_Q_estado_objetivo = self.devuelve_mejor_accion_y_valor(estado_objetivo,self.devuelve_estado_accion_posibles_codificados(estado_objetivo))[1]
+        self.calcula_valor_Q(estado_origen, accion_desde_origen, maximo_valor_Q_estado_objetivo, estado_objetivo)
+                
+    def genera_movimiento(self,sucesor_rival):
+
+        if sucesor_rival == None: #es el primer turno
+            
+            estado_origen = self.state_inicial
+            self.establece_turno(self.state_inicial.get('TURN'))
+            accion_realizar = self.devuelve_mejor_accion_y_valor(estado_origen,self.devuelve_estado_accion_posibles_codificados(estado_origen))[0]
+            sucesor_generado = super().devuelve_sucesor(estado_origen,accion_realizar,super().simula_movimiento_sobre_estado(estado_origen,accion_realizar))
+            
+            self.sucesor_enviado =  sucesor_generado
+        
+        else:
+
+            self.aprende_de_sucesor(sucesor_rival)
+            estado_origen = sucesor_rival.get("NEXT_STATE")
+            
+            if self.sucesor_enviado == None:
+                self.establece_turno(sucesor_rival.get('NEXT_STATE').get('TURN'))
+                
+            if self.sucesor_enviado != None and not super().valida_estado_inicial_rival(self.sucesor_enviado.get('NEXT_STATE'),sucesor_rival) and not super().valida_jugada(sucesor_rival): 
+                return  "Acción incorrecta",None
+            elif self.sucesor_enviado == None and not super().valida_jugada(sucesor_rival): #aunque no puedas comparar con tu anterior jugada porque estés en el segundo turno, al menos compruebas que la acción sea correcta
+                return "Acción incorrecta",None
+            
+            if super().comprueba_condiciones_derrota(estado_origen):
+                self.sobreescribe_tabla_Q(self.ruta_archivo)
+                return "Derrota",None
+                       
+            accion_realizar = self.devuelve_mejor_accion_y_valor(estado_origen,self.devuelve_estado_accion_posibles_codificados(estado_origen))[0]
+            sucesor_generado = super().devuelve_sucesor(estado_origen,accion_realizar,super().simula_movimiento_sobre_estado(estado_origen,accion_realizar))
+            
+            self.sucesor_enviado =  sucesor_generado
+            
+            if super().comprueba_condiciones_derrota(self.sucesor_enviado.get('NEXT_STATE')): #el estado al que llegaremos nos hace ganar
+                self.sobreescribe_tabla_Q(self.ruta_archivo)
+                return "Victoria",sucesor_generado
+            
+        # ESTO ES PARA PROBAR LO DE ENVIAR SUCESORES ERRÓNEOS
+        #sucesor_generado.get('NEXT_STATE').get('GAMER')[sucesor_generado.get('STATE').get('TURN')] = []
+        
+        return "Acción normal",sucesor_generado
+
 
 
 if __name__ == "__main__":
+    import time
 
-    jugador = Jugador_Q_Learning()
-    jugador.turno = 0
-    jugador.realiza_episodios(500)
-    jugador.turno = 1
-    jugador.realiza_episodios(500)
+    tiempo_ejecucion = 30 * 60  # N minutos x 60 segundos/minuto
+    tiempo_inicial = time.time()
+    contador_iteraciones = 0
 
+    while float(time.time() - tiempo_inicial) < tiempo_ejecucion:
 
-    
+        jugador = Jugador_Q_Learning()
+        jugador.establece_turno(0)
+        jugador.realiza_episodios(100)
+        jugador.establece_turno(1)
+        jugador.realiza_episodios(100)
+        contador_iteraciones += 1
+        print("TIEMPO EN MINUTOS",(time.time() - tiempo_inicial)/60)
+        print("ITERACIONES HECHAS: ", contador_iteraciones)
