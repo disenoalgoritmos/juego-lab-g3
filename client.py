@@ -266,12 +266,14 @@ class Client:
                 print("\nSeleccione una opción: ")
                 print("1. Jugador manual")
                 print("2. Jugador torpe (al azar)")
-                print("3. Jugador perfecto (árbol de búsqueda de montecarlo)")
+                print("3. Jugador perfecto V1 (árbol de búsqueda de montecarlo)")
+                print("4. Jugador perfecto V2 (árbol de búsqueda de montecarlo)")
+                print("5. Jugador Q-learning")
                 opcion = input()
 
                 if opcion.isdigit():
                     opcion = int(opcion)
-                    if opcion in [1,2,3]:
+                    if opcion in [1,2,3,4,5]:
                         self.jugador=opcion
                         correcto=True
                     else:
@@ -294,12 +296,15 @@ class Client:
 
         elif message['TYPE'] == "JOIN_GAME" and response['MESSAGE'] == "OK":
             print("\nPartida unida correctamente")
-            argumentos = [str(message.get('ADDR')[0]), str(message.get('ADDR')[1]), str(self.jugador)]
+            #Pedir al jugador que selecione numero de procesos y numero de iteraciones
+            num_procesos = 1
+            num_iteraciones= 50
+            argumentos = [str(message.get('ADDR')[0]), str(message.get('ADDR')[1]), str(self.jugador),str(num_procesos),str(num_iteraciones)]
             comando = ["python", ".\clienteGAME_socket.py"] + argumentos
             if(platform.system()=="Windows"):
                 subprocess.Popen(comando, creationflags =subprocess.CREATE_NEW_CONSOLE)
             else:
-                print(f"Ejecute el siguiente comando en otra terminal: python3 clienteGAME_socket.py  {str(message.get('ADDR')[0])} {str(message.get('ADDR')[1])} {str(self.jugador)} ")    
+                print(f"Ejecute el siguiente comando en otra terminal: python3 clienteGAME_socket.py  {str(message.get('ADDR')[0])} {str(message.get('ADDR')[1])} {str(self.jugador)} {str(num_procesos)} {str(num_iteraciones)}")    
             # Unirse a una partida
             message = await self.menu2()
             self.writer.write(json.dumps(message).encode())

@@ -76,3 +76,7 @@ partidasNacho75Simulaciones16 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGA
 partidasNacho75Simulaciones17 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 01:21
 partidasNacho75Simulaciones18 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 01:10
 partidasNacho75Simulaciones19 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:29
+d11 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR TONTO ; 00:01
+r11 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 23:47
+s ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO V2 ; 05:26
+q ; 'OK' ; nacho ; Q-LEARNING ; nacho ; JUGADOR TONTO ; 00:59

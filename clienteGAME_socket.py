@@ -14,7 +14,9 @@ class Game_Client():
         # Configuración del cliente
         self.host = argv[1]
         self.port = int(argv[2])
-        self.jugador = int(argv[3])
+        self.tipo_jugador = int(argv[3])
+        self.numero_procesos = int(argv[4])
+        self.numero_iteraciones = int(argv[5])
         self.primer_jugador = None
         self.sucesor_rival = None
         self.anterior_sucesor_rival = None
@@ -34,6 +36,7 @@ class Game_Client():
         ### CREACIÓN DE LA CLASE MOLINO PARA CREAR ACCIONES
         #######################################################################
         self.bot_molino = bots_prueba.Molino()
+        self.jugador = self.bot_molino.devuelve_jugador(self.tipo_jugador, self.numero_procesos, self.numero_iteraciones)
 
         self.main()
 
@@ -50,7 +53,7 @@ class Game_Client():
         return self.sucesor_rival
 
     def envia_accion(self):
-        mensaje,sucesor_nuevo = self.bot_molino.genera_movimiento(self.sucesor_rival, self.jugador)
+        mensaje,sucesor_nuevo = self.jugador.genera_movimiento(self.sucesor_rival)
         if mensaje == "Derrota":  # tanto si perdemos como si ganamos hay que mandar un mensaje FINISH
             self.client_socket.send(json.dumps(self.crea_mensaje_RESPONSE("FINISH")).encode())
         elif mensaje == "Victoria":
@@ -130,5 +133,6 @@ class Game_Client():
         self.ejecuta_primera_accion()
         self.bucle_partida()
         self.cierra_conexion()
-
-cliente = Game_Client(sys.argv)
+if __name__ == "__main__":
+    cliente = Game_Client(sys.argv)
+    
