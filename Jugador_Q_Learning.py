@@ -264,7 +264,7 @@ class Jugador_Q_Learning(Jugador):
 if __name__ == "__main__":
     import time
 
-    tiempo_ejecucion = 15 * 60  # N minutos x 60 segundos/minuto
+    tiempo_ejecucion = 45 * 60  # N minutos x 60 segundos/minuto
     tiempo_inicial = time.time()
     contador_iteraciones = 0
 
@@ -272,11 +272,11 @@ if __name__ == "__main__":
 
         jugador = Jugador_Q_Learning()
         jugador.establece_turno(0)
-        jugador.realiza_episodios(50)
+        jugador.realiza_episodios(100)
         print("LINEAS AÑADIDAS EN EL ARCHIVO 0 :", jugador.lineas_añadidas)
         jugador.lineas_añadidas = 0
         jugador.establece_turno(1)
-        jugador.realiza_episodios(50)
+        jugador.realiza_episodios(100)
         print("LINEAS AÑADIDAS EN EL ARCHIVO 1 :", jugador.lineas_añadidas)
         contador_iteraciones += 1
         print("TIEMPO EN MINUTOS",(time.time() - tiempo_inicial)/60)
