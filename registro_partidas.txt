@@ -1,0 +1,95 @@
+Game_ID ; Resultado ; Usuario ganador ; tipo jugador ganador ; Usuario perdedor ; tipo jugador perdedor
+n ; nacho ; 'OK' ; JUGADOR TONTO ; nacho ; JUGADOR TONTO
+n2 ; nacho ; 'OK' ; JUGADOR TONTO ; nacho ; JUGADOR TONTO
+n3 ; nacho ; 'OK' ; JUGADOR TONTO ; nacho ; JUGADOR TONTO
+n4 ; nacho ; 'OK' ; JUGADOR TONTO ; nacho ; JUGADOR TONTO
+monteCarlo ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO
+M3 ; nacho ; 'OK' ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO
+M2 ; nacho ; 'OK' ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO
+M5 ; nacho ; 'OK' ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO
+M4 ; nacho ; 'OK' ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO
+aleatorio ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR TONTO
+1 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO ; 02:50
+2 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 01:41
+3 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 01:21
+4 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:22
+5 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:38
+6 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 04:36
+7 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 16:54
+partidasNacho0 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:45
+partidasNacho1 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:19
+partidasNacho2 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:18
+partidasNacho3 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:18
+partidasNacho4 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:54
+partidasNacho5 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:43
+partidasNacho6 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 02:17
+partidasNacho7 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:53
+partidasNacho8 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO ; 00:18
+partidasNacho9 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO ; 00:16
+partidasNacho10 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:22
+partidasNacho11 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:20
+partidasNacho12 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:28
+partidasNacho13 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:17
+partidasNacho14 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:25
+partidasNacho15 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:20
+partidasNacho16 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:41
+partidasNacho17 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO ; 00:19
+partidasNacho18 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:17
+partidasNacho19 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:13
+partidasNacho60Simulaciones0 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO ; 00:36
+partidasNacho60Simulaciones1 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:34
+partidasNacho60Simulaciones2 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:28
+partidasNacho60Simulaciones3 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:21
+partidasNacho60Simulaciones4 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO ; 00:24
+partidasNacho60Simulaciones5 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:22
+partidasNacho60Simulaciones6 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:23
+partidasNacho60Simulaciones7 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:15
+partidasNacho60Simulaciones8 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 01:00
+partidasNacho60Simulaciones9 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:27
+partidasNacho60Simulaciones10 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:29
+partidasNacho60Simulaciones11 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO ; 00:26
+partidasNacho60Simulaciones12 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 03:05
+partidasNacho60Simulaciones13 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:29
+partidasNacho60Simulaciones14 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO ; 00:38
+partidasNacho60Simulaciones15 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:23
+partidasNacho60Simulaciones16 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:22
+partidasNacho60Simulaciones17 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:20
+partidasNacho60Simulaciones18 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO ; 00:38
+partidasNacho60Simulaciones19 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:53
+partidasNacho75Simulaciones0 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:39
+partidasNacho75Simulaciones1 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 02:28
+partidasNacho75Simulaciones2 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:52
+partidasNacho75Simulaciones3 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:18
+partidasNacho75Simulaciones4 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 01:17
+partidasNacho75Simulaciones5 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO ; 00:27
+partidasNacho75Simulaciones6 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:34
+partidasNacho75Simulaciones7 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO ; 00:47
+partidasNacho75Simulaciones8 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 02:38
+partidasNacho75Simulaciones9 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:43
+partidasNacho75Simulaciones10 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:31
+partidasNacho75Simulaciones11 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:28
+partidasNacho75Simulaciones12 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 01:13
+partidasNacho75Simulaciones13 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:40
+partidasNacho75Simulaciones14 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:45
+partidasNacho75Simulaciones15 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO ; 01:26
+partidasNacho75Simulaciones16 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:16
+partidasNacho75Simulaciones17 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 01:21
+partidasNacho75Simulaciones18 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 01:10
+partidasNacho75Simulaciones19 ; 'OK' ; nacho ; JUGADOR MONTECARLO ; nacho ; JUGADOR TONTO ; 00:29
+d11 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR TONTO ; 00:01
+r11 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 23:47
+s ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO V2 ; 05:26
+q ; 'OK' ; nacho ; Q-LEARNING ; nacho ; JUGADOR TONTO ; 00:59
+MontecarloV1vsAleatorio00 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 09:04
+MontecarloV1vsAleatorio01 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 07:32
+MontecarloV1vsAleatorio02 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 21:07
+MontecarloV1vsAleatorio03 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 10:04
+MontecarloV1vsAleatorio04 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 11:16
+MontecarloV1vsAleatorio05 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO V1 ; 07:17
+MontecarloV1vsAleatorio06 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 10:05
+MontecarloV1vsAleatorio07 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 06:29
+MontecarloV1vsAleatorio08 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 05:13
+MontecarloV1vsAleatorio09 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 14:52
+MontecarloV1vsAleatorio0XX ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 06:38
+MontecarloV1vsAleatorio10 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 07:48
+MontecarloV1vsAleatorio11 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 08:10

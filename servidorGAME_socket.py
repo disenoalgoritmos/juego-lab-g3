@@ -15,6 +15,8 @@ class Game_Server():
         self.port_j2 = int(sys.argv[4])
         self.ip_server = sys.argv[5]
         self.port_server = int(sys.argv[6])
+        self.game_id = sys.argv[7]
+
 
         #Lista con las direcciones de los dos jugadores
         self.gamers = []
@@ -87,20 +89,29 @@ class Game_Server():
             print(sucesor_recibido)
             self.sockets_hijos[self.jugador_activo].send(json.dumps(sucesor_recibido).encode())
             
-        
         #SE ENVÍA UN MENSAJE BYE A CADA JUGADOR
         print("\nENVIANDO MENSAJES BYE A AMBOS JUGADORES PARA FINALIZAR LA PARTIDA")
         self.sockets_hijos[0].send(json.dumps(self.crea_mensaje_RESPONSE("BYE")).encode())
         self.sockets_hijos[1].send(json.dumps(self.crea_mensaje_RESPONSE("BYE")).encode())
 
+        if(self.ganador != None):
         #SE ENVÍA AL SERVIDOR CENTRAL EL GANADOR DE LA PARTIDA (O NONE SI AMBOS PIERDEN)
-        print("EL GANADOR DE LA PARTIDA ES ", self.ganador)
-        self.socket_servidor_central.send(self.ganador.encode())
+            print("EL GANADOR DE LA PARTIDA ES ", self.ganador)
+            mensaje={"TYPE": "RESULT", "RESULT": self.ganador, "GAME_ID": self.game_id}
+            self.socket_servidor_central.send(json.dumps(mensaje).encode())
+        else:
+            print("LA PARTIDA ACABA EN EMPATE")
+            mensaje={"TYPE": "RESULT", "RESULT": "EMPATE", "GAME_ID": self.game_id}
+            self.socket_servidor_central.send(json.dumps(mensaje).encode())
 
-        # SE CIERRAN LOS SOCKETS CREADOS 
-        self.sockets_hijos[0].close()
-        self.sockets_hijos[1].close()
-        self.socket_servidor_central.close()
+        msj=json.loads(self.socket_servidor_central.recv(1024).decode())
+
+        # SE CIERRAN LOS SOCKETS CREADOS
+        if msj.get("MESSAGE") == "OK":
+            print("SE HA CERRADO LA PARTIDA CORRECTAMENTE") 
+            self.sockets_hijos[0].close()
+            self.sockets_hijos[1].close()
+            self.socket_servidor_central.close()
     
     def envia_recibe_GAME_OK(self, client_socket):
         
@@ -152,14 +163,15 @@ class Game_Server():
             elif sucesor_recibido.get('MESSAGE') == "FINISH":
                 self.contador_mensajes_finish += 1 #siempre que llegue un mensaje finish, se aumenta el contador en una unidad
                 if self.contador_mensajes_finish == 1:
-                    self.primer_jugador = self.jugador_activo #se guarda el jugador que mandó el sucesor ganador para luego devolverlo al fin del bucle
+                    self.jugador_primer_finish = self.jugador_activo #se guarda el jugador que mandó el sucesor ganador para luego devolverlo al fin del bucle
                     print("\nRECIBIENDO LA ACCIÓN GANADORA DESPUÉS DE UN MENSAJE FINISH")
                     sucesor_recibido  = json.loads(self.sockets_hijos[self.jugador_activo].recv(1024).decode()) #si se recibe el primer FINISH, a continuación debe 
                     # recibirse el sucesor que hace ganar a dicho jugador
                     print(sucesor_recibido)
                 elif self.contador_mensajes_finish == 2:
-                    self.seguir_partida = False # cuando se detectan dos mensaje finish seguidos, se termina el bucle
                     self.ganador = self.jugador_primer_finish # el ganador será el primer jugador que haya enviado un mensaje FINISH
+                    self.seguir_partida = False # cuando se detectan dos mensaje finish seguidos, se termina el bucle
+                   
             
         else:  #cuando el sucesor sea uno correcto
             if self.sucesor_causante_error == sucesor_recibido: # si recibes un sucesor y es igual al que se había guardado antes por si acaso es porque

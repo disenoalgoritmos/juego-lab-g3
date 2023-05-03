@@ -61,6 +61,7 @@ class Client:
         print("\nSeleccione una opción: ")
         print("1. Iniciar sesión")
         print("2. Registrarme como nuevo usuario")
+        #print("3. Estadísticas")
         print("3. Salir")
         opcion = input()
 
@@ -70,6 +71,8 @@ class Client:
                 return self.login()
             elif opcion == 2:
                 return self.register()
+            #elif opcion == 3:
+                #return {"TYPE": "STATISTICS"}
             elif opcion == 3:
                 self.salir=True
                 print('\nClose the connection')
@@ -131,6 +134,19 @@ class Client:
             self.writer.write(json.dumps(message).encode())
             await self.writer.drain()
             await self.comprobeResponse(message)
+        #elif message['TYPE'] == "STATISTICS" and response['MESSAGE'] != "ERROR":
+        #    print("\nEstadísticas: ")
+        #    print(response['MESSAGE'])
+        #    message = await self.menu()
+        #    self.writer.write(json.dumps(message).encode())
+        #    await self.writer.drain()
+        #    await self.comprobeResponse(message)
+        #elif message['TYPE'] == "STATISTICS" and response['MESSAGE'] == "ERROR":
+        #    print("\nNo hay estadísticas disponibles")
+        #    message = await self.menu()
+        #    self.writer.write(json.dumps(message).encode())
+        #    await self.writer.drain()
+        #    await self.comprobeResponse(message)
 
     async def menu2(self):
         print("\nSeleccione una opción: ")
@@ -138,6 +154,7 @@ class Client:
         print("2. Eliminar mi usuario")
         print("3. Crear una partida")
         print("4. Buscar una partida")
+        #print("5. Estadísticas")
         print("5. Cerrar sesión")
         opcion = input()
 
@@ -151,6 +168,8 @@ class Client:
                 return self.new_game()
             elif opcion == 4:
                 return {"TYPE": "SEARCH_GAME"}
+            #elif opcion == 5:
+            #    return {"TYPE": "STATISTICS"}
             elif opcion == 5:
                 return {"TYPE": "LOG_OUT", "USER": self.user, "PASSWORD": self.password}
                 message = self.menu()
@@ -247,12 +266,14 @@ class Client:
                 print("\nSeleccione una opción: ")
                 print("1. Jugador manual")
                 print("2. Jugador torpe (al azar)")
-                #print("3. Jugador perfecto (algortimo minimax)")
+                print("3. Jugador perfecto V1 (árbol de búsqueda de montecarlo)")
+                print("4. Jugador perfecto V2 (árbol de búsqueda de montecarlo)")
+                print("5. Jugador Q-learning")
                 opcion = input()
 
                 if opcion.isdigit():
                     opcion = int(opcion)
-                    if opcion in [1,2]:
+                    if opcion in [1,2,3,4,5]:
                         self.jugador=opcion
                         correcto=True
                     else:
@@ -261,7 +282,7 @@ class Client:
                     print("Opción inválida, introduzca un número")
 
             
-            message = {"TYPE": "JOIN_GAME", "ID_GAME": id, "ADDR":[self.ip, str(puerto)]}
+            message = {"TYPE": "JOIN_GAME", "ID_GAME": id, "ADDR":[self.ip, str(puerto)], "PLAYER": self.jugador}
             self.writer.write(json.dumps(message).encode())
             await self.writer.drain()
             await self.comprobeResponse2(message)
@@ -275,12 +296,15 @@ class Client:
 
         elif message['TYPE'] == "JOIN_GAME" and response['MESSAGE'] == "OK":
             print("\nPartida unida correctamente")
-            argumentos = [str(message.get('ADDR')[0]), str(message.get('ADDR')[1]), str(self.jugador)]
+            #Pedir al jugador que selecione numero de procesos y numero de iteraciones
+            num_procesos = 1
+            num_iteraciones= 50
+            argumentos = [str(message.get('ADDR')[0]), str(message.get('ADDR')[1]), str(self.jugador),str(num_procesos),str(num_iteraciones)]
             comando = ["python", ".\clienteGAME_socket.py"] + argumentos
             if(platform.system()=="Windows"):
                 subprocess.Popen(comando, creationflags =subprocess.CREATE_NEW_CONSOLE)
             else:
-                print(f"Ejecute el siguiente comando en otra terminal: python3 clienteGAME_socket.py  {str(message.get('ADDR')[0])} {str(message.get('ADDR')[1])} {str(self.jugador)} ")    
+                print(f"Ejecute el siguiente comando en otra terminal: python3 clienteGAME_socket.py  {str(message.get('ADDR')[0])} {str(message.get('ADDR')[1])} {str(self.jugador)} {str(num_procesos)} {str(num_iteraciones)}")    
             # Unirse a una partida
             message = await self.menu2()
             self.writer.write(json.dumps(message).encode())
@@ -293,6 +317,22 @@ class Client:
             self.writer.write(json.dumps(message).encode())
             await self.writer.drain()
             await self.comprobeResponse2(message)
+
+        # elif message['TYPE'] == "STATISTICS" and response['MESSAGE'] != "ERROR":
+        #     print("\nEstadísticas del usuario: ")
+        #     print(response['MESSAGE'])
+        #     message = await self.menu2()
+        #     self.writer.write(json.dumps(message).encode())
+        #     await self.writer.drain()
+        #     await self.comprobeResponse2(message)
+        
+        # elif message['TYPE'] == "STATISTICS" and response['MESSAGE'] == "ERROR":
+        #     print("\nNo se ha podido obtener las estadísticas")
+        #     message = await self.menu2()
+        #     self.writer.write(json.dumps(message).encode())
+        #     await self.writer.drain()
+        #     await self.comprobeResponse2(message)
+        
         
         elif message['TYPE'] == "LOG_OUT" and response['MESSAGE'] == "OK":
             print("\nSesión cerrada correctamente")
