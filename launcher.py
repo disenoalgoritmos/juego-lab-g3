@@ -4,6 +4,7 @@ import random
 import subprocess
 import time
 import sys
+import multiprocessing
 async def launcher(message):
     reader, writer = await asyncio.open_connection(
         '127.0.0.1', 8908)
@@ -28,8 +29,8 @@ async def launcher(message):
     #Crear partidas
     #crearPartidas('partidasNacho', 20)
 
-    numPartidas = 20
-    nombre = 'partidasNacho75Simulaciones'
+    numPartidas = 10
+    nombre = 'MontecarloV1vsAleatorio1'
     for i in range(numPartidas):
         print(f'Creando partida {i} de {numPartidas}')
         message_New = {
@@ -65,7 +66,9 @@ async def launcher(message):
         data = await reader.read(1024)
         print(f'Received: {data.decode()!r}')
         message = data.decode()
-        argumentos = ['127.0.0.1',str(puerto), "2"]
+        num_procesos = 4
+        num_iteraciones= 50
+        argumentos = ['127.0.0.1',str(puerto), "2",str(num_procesos),str(num_iteraciones)]
         comando = ["python", ".\clienteGAME_socket.py"] + argumentos
         subprocess.Popen(comando, creationflags =subprocess.CREATE_NEW_CONSOLE)
 
@@ -85,7 +88,9 @@ async def launcher(message):
         data = await reader.read(1024)
         print(f'Received: {data.decode()!r}')
         message = data.decode()
-        argumentos = ['127.0.0.1',str(puerto), "3"]
+        num_procesos = 4
+        num_iteraciones= 50
+        argumentos = ['127.0.0.1',str(puerto), "3",str(num_procesos),str(num_iteraciones)]
         comando = ["python", ".\clienteGAME_socket.py"] + argumentos
         subprocess.Popen(comando, creationflags =subprocess.CREATE_NEW_CONSOLE)
         nextPartida = False

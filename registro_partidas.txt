@@ -80,3 +80,16 @@ d11 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR TONTO ; 00:01
 r11 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 23:47
 s ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO V2 ; 05:26
 q ; 'OK' ; nacho ; Q-LEARNING ; nacho ; JUGADOR TONTO ; 00:59
+MontecarloV1vsAleatorio00 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 09:04
+MontecarloV1vsAleatorio01 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 07:32
+MontecarloV1vsAleatorio02 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 21:07
+MontecarloV1vsAleatorio03 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 10:04
+MontecarloV1vsAleatorio04 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 11:16
+MontecarloV1vsAleatorio05 ; 'OK' ; nacho ; JUGADOR TONTO ; nacho ; JUGADOR MONTECARLO V1 ; 07:17
+MontecarloV1vsAleatorio06 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 10:05
+MontecarloV1vsAleatorio07 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 06:29
+MontecarloV1vsAleatorio08 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 05:13
+MontecarloV1vsAleatorio09 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 14:52
+MontecarloV1vsAleatorio0XX ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 06:38
+MontecarloV1vsAleatorio10 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 07:48
+MontecarloV1vsAleatorio11 ; 'OK' ; nacho ; JUGADOR MONTECARLO V1 ; nacho ; JUGADOR TONTO ; 08:10
