@@ -21,6 +21,7 @@ class Jugador_Q_Learning(Jugador):
         self.turno = None
         self.gamma = 0.8
         self.alpha = 0.1
+        self.beta = 0.05
         self.tabla_Q = None
         self.lineas_añadidas = 0
 
@@ -245,7 +246,12 @@ class Jugador_Q_Learning(Jugador):
                 return "Derrota",None
                        
             accion_realizar = self.devuelve_mejor_accion_y_valor(estado_origen,self.devuelve_estado_accion_posibles_codificados(estado_origen))[0]
-            sucesor_generado = super().devuelve_sucesor(estado_origen,accion_realizar,super().simula_movimiento_sobre_estado(estado_origen,accion_realizar))
+            
+            if random.random() <= self.beta: # pasamos de explotación a exploración en ciertas situaciones
+                jugador_aleatorio = Jugador_Aleatorio()
+                sucesor_generado = jugador_aleatorio.genera_movimiento(sucesor_rival)
+            else:
+                sucesor_generado = super().devuelve_sucesor(estado_origen,accion_realizar,super().simula_movimiento_sobre_estado(estado_origen,accion_realizar))
             
             self.sucesor_enviado =  sucesor_generado
             self.aprende_de_sucesor(sucesor_generado)

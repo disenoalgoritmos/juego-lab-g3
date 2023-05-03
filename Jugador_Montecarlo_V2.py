@@ -1,6 +1,4 @@
 
-#from collections import Counter
-import multiprocessing
 import concurrent.futures
 from Jugador_Aleatorio import Jugador_Aleatorio
 from nodo_montecarlo import Nodo_Montecarlo
@@ -144,24 +142,7 @@ class Jugador_Montecarlo_V2(Jugador):
 
             self.backup(nodo_descendiente, sum(resultados), len(resultados))
             contador_iteraciones += 1
-        
-        '''for hijo in nodo_raiz.devuelve_lista_hijos():
-            print("---------------")
-            print("VALOR: ",hijo.devuelve_valor())
-            print("N: ",hijo.devuelve_N())
-            print("Q: ",hijo.devuelve_Q())
-            print("Sucesor: ",hijo.devuelve_sucesor())
-            print("---------------")
 
-        if nodo_raiz.devuelve_padre() != None:
-            print("PADRE: ",nodo_raiz.devuelve_padre().devuelve_id())
-        else:
-            print("PADRE: -")
-        #print("VALOR: ",nodo_raiz.devuelve_valor())
-        print("N: ",nodo_raiz.devuelve_N())
-        print("Q: ",nodo_raiz.devuelve_Q())
-        print("Sucesor: ",nodo_raiz.devuelve_sucesor())
-        print("---------------")'''
         return self.bestchild(nodo_raiz).devuelve_sucesor()
     
     def simula_partida_aleatoria(self, sucesor_inicial, jugador_nuestro): 

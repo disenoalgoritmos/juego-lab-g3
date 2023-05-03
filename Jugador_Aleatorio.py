@@ -19,10 +19,10 @@ class Jugador_Aleatorio(Jugador):
         
         else:
 
-            '''if self.sucesor_enviado != None and not super().valida_estado_inicial_rival(self.sucesor_enviado.get('NEXT_STATE'),sucesor_rival) and not super().valida_jugada(sucesor_rival): 
+            if self.sucesor_enviado != None and not super().valida_estado_inicial_rival(self.sucesor_enviado.get('NEXT_STATE'),sucesor_rival) and not super().valida_jugada(sucesor_rival): 
                 return  "Acción incorrecta",None
             elif self.sucesor_enviado == None and not super().valida_jugada(sucesor_rival): #aunque no puedas comparar con tu anterior jugada porque estés en el segundo turno, al menos compruebas que la acción sea correcta
-                return "Acción incorrecta",None'''
+                return "Acción incorrecta",None
             
             if super().comprueba_condiciones_derrota(sucesor_rival.get("NEXT_STATE")):
                 return "Derrota",None

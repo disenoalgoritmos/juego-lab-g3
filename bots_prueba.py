@@ -54,7 +54,7 @@ if __name__ == "__main__":
     contador_victorias = 0 
     contador_partidas = 0
     #num_partidas = 1
-    tiempo_segundos = 60*1*60 #3 horas	    
+    tiempo_segundos = 60*1*60 #1 hora	    
     inicio = time.time()
     inicio_aux = time.time()
 
