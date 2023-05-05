@@ -12,9 +12,9 @@ from arboles_montecarlo.arbol_montecarlo1 import *
 from arboles_montecarlo.arbol_montecarlo2 import *
 
 ##
-from Algoritmo_Enrique.Enriquebots_prueba import * #BORRARLO
+#from Algoritmo_Enrique.Enriquebots_prueba import * #BORRARLO
 global molino
-molino = Molino()
+#molino = Molino()
 ##
 
 '''

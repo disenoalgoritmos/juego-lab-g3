@@ -5,7 +5,7 @@ ALGORITMO FINALIZAR PARTIDAS
 que madó uno de ellos.
 
 - Cuando aparezca un mensaje ERROR, si el oponente vuelve a mandar el mismo sucesor (hay que tenerlo almacenado por si acaso), se termina la 
-partida resultando ambos jugadores perdedores. ESTO POR AHORA NO ESTÁ IMPLEMENTADO
+partida resultando ambos jugadores perdedores. 
 
 - Cuando aparezca un mensaje ERROR, si el oponente responde con otro sucesor, simplemente se aumentará en una unidad un contador de fallos 
 para cada jugador. El primer jugador que llegue a 3 fallos, se considerarán ambos jugadores como perdedores, finalizando así la partida.

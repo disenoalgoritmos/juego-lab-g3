@@ -26,7 +26,7 @@ TIPO_JUGADOR_Q_LEARNING_ENRIQUE = "Q_LEARNING_ENRIQUE"
 
 RUTA_USUARIOS = 'Código/Datos_Persistentes/usuarios.json'
 RUTA_PARTIDAS = 'Código/Datos_Persistentes/estadisticas.json'
-RUTA_CEREBRO = 'Código/Datos_Persistentes/CerebroTurnosRepetición1/cerebro'
+RUTA_CEREBRO = 'codigo_moha/Datos_Persistentes/CerebroTurnosRepetición1/cerebro'
 
 JUGADAS_EMPATE = 200
 ITERACIONES_MONTECARLO = 50
