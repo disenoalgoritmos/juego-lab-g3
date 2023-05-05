@@ -59,7 +59,7 @@ if __name__ == "__main__":
     inicio_aux = time.time()
 
     while (time.time() - inicio) < tiempo_segundos:
-        if molino.simula_partida(None,0,4,5,num_procesos, num_iteraciones) == 1:
+        if molino.simula_partida(None,0,2,5,num_procesos, num_iteraciones) == 1:
             contador_victorias += 1
         contador_partidas += 1
         print("-----------------------------------")

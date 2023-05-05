@@ -234,7 +234,7 @@ class Jugador_Q_Learning(Jugador):
             if self.sucesor_enviado == None:
                 self.establece_turno(sucesor_rival.get('NEXT_STATE').get('TURN'))
             
-            self.aprende_de_sucesor(sucesor_rival)
+            #self.aprende_de_sucesor(sucesor_rival)
 
             if self.sucesor_enviado != None and not super().valida_estado_inicial_rival(self.sucesor_enviado.get('NEXT_STATE'),sucesor_rival) and not super().valida_jugada(sucesor_rival): 
                 return  "Acción incorrecta",None
@@ -249,12 +249,12 @@ class Jugador_Q_Learning(Jugador):
             
             if random.random() <= self.beta: # pasamos de explotación a exploración en ciertas situaciones
                 jugador_aleatorio = Jugador_Aleatorio()
-                sucesor_generado = jugador_aleatorio.genera_movimiento(sucesor_rival)
+                mensaje, sucesor_generado = jugador_aleatorio.genera_movimiento(sucesor_rival)
             else:
                 sucesor_generado = super().devuelve_sucesor(estado_origen,accion_realizar,super().simula_movimiento_sobre_estado(estado_origen,accion_realizar))
             
             self.sucesor_enviado =  sucesor_generado
-            self.aprende_de_sucesor(sucesor_generado)
+            #self.aprende_de_sucesor(sucesor_generado)
 
             if super().comprueba_condiciones_derrota(self.sucesor_enviado.get('NEXT_STATE')): #el estado al que llegaremos nos hace ganar
                 self.sobreescribe_tabla_Q(self.ruta_archivo)
