@@ -54,19 +54,19 @@ if __name__ == "__main__":
     contador_victorias = 0 
     contador_partidas = 0
     #num_partidas = 1
-    tiempo_segundos = 60*1*60 #1 hora	    
+    tiempo_segundos = 60*5 #1 hora	    
     inicio = time.time()
     inicio_aux = time.time()
 
     while (time.time() - inicio) < tiempo_segundos:
-        if molino.simula_partida(None,0,4,5,num_procesos, num_iteraciones) == 1:
+        if molino.simula_partida(None,0,5,5,num_procesos, num_iteraciones) == 1:
             contador_victorias += 1
         contador_partidas += 1
         print("-----------------------------------")
         print("FIN PARTIDA",contador_partidas)
         print("-----------------------------------")
         print("TIEMPO CONSUMIDO", time.time()-inicio_aux)  
-        print("PARTIDAS GANADAS: ",str(contador_victorias) + "/"+str(contador_partidas))
+        print("PARTIDAS GANADAS: ",str(contador_victorias) + "/" +str(contador_partidas))
         inicio_aux = time.time()
 
     print("-----------------------------------")
